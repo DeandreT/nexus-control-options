@@ -1,0 +1,5 @@
+# build artefacts
+x64/
+
+# visual studio
+.vs/
