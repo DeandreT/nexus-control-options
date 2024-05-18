@@ -34,6 +34,7 @@ namespace Settings
 	extern Keybind DodgeJumpKeybind;
 	extern Keybind MoveAboutFaceKeybind;
 	extern Keybind HoldDoubleClickKeybind;
+	extern Keybind ToggleDoubleClickKeybind;
 } // namespace Settings
 
 namespace ImGui
@@ -48,14 +49,31 @@ namespace ImGui
 		return hovered;
 	}
 
-	static void TooltipGeneric(const char* fmt, ...)
+	static void TooltipGeneric(const char* str, ...)
 	{
 		if (ImGui::Tooltip())
 		{
-			ImGui::Text(fmt);
+			ImGui::Text(str);
 			ImGui::EndTooltip();
 		}
 	}
+
+	static ImVec2 operator+(const ImVec2& lhs, const ImVec2& rhs)
+	{ 
+		return ImVec2(lhs.x + rhs.x, lhs.y + rhs.y); 
+	}
+
+	static void PaddedText(const char* str, float paddingX, float paddingY)
+	{
+		ImVec2 textSize = ImGui::CalcTextSize(str);
+		ImVec2 cursorStart = ImGui::GetCursorPos();
+		ImGui::InvisibleButton("##PaddedText", textSize + ImVec2(paddingX * 2, paddingY * 2));
+		ImVec2 cursorFinal = ImGui::GetCursorPos();
+		ImGui::SetCursorPos(cursorStart + ImVec2(paddingX, paddingY));
+		ImGui::Text(str);
+		//ImGui::SetCursorPos(cursorFinal);
+	}
+
 } // namespace ImGui
 
 #endif /* SETTINGS_H */

@@ -72,10 +72,15 @@ namespace Settings
 			if (!Settings["MOVE_ABOUT_FACE_CTRL"].is_null()) { Settings["MOVE_ABOUT_FACE_CTRL"].get_to(MoveAboutFaceKeybind.Ctrl); }
 			if (!Settings["MOVE_ABOUT_FACE_SHIFT"].is_null()) { Settings["MOVE_ABOUT_FACE_SHIFT"].get_to(MoveAboutFaceKeybind.Shift); }
 
-			if (!Settings["RAPID_CLICK_KEY"].is_null()) { Settings["RAPID_CLICK_KEY"].get_to(HoldDoubleClickKeybind.Key); }
-			if (!Settings["RAPID_CLICK_ALT"].is_null()) { Settings["RAPID_CLICK_ALT"].get_to(HoldDoubleClickKeybind.Alt); }
-			if (!Settings["RAPID_CLICK_CTRL"].is_null()) { Settings["RAPID_CLICK_CTRL"].get_to(HoldDoubleClickKeybind.Ctrl); }
-			if (!Settings["RAPID_CLICK_SHIFT"].is_null()) { Settings["RAPID_CLICK_SHIFT"].get_to(HoldDoubleClickKeybind.Shift); }
+			if (!Settings["HOLD_DOUBLE_CLICK_KEY"].is_null()) { Settings["HOLD_DOUBLE_CLICK_KEY"].get_to(HoldDoubleClickKeybind.Key); }
+			if (!Settings["HOLD_DOUBLE_CLICK_ALT"].is_null()) { Settings["HOLD_DOUBLE_CLICK_ALT"].get_to(HoldDoubleClickKeybind.Alt); }
+			if (!Settings["HOLD_DOUBLE_CLICK_CTRL"].is_null()) { Settings["HOLD_DOUBLE_CLICK_CTRL"].get_to(HoldDoubleClickKeybind.Ctrl); }
+			if (!Settings["HOLD_DOUBLE_CLICK_SHIFT"].is_null()) { Settings["HOLD_DOUBLE_CLICK_SHIFT"].get_to(HoldDoubleClickKeybind.Shift); }
+
+			if (!Settings["TOGGLE_DOUBLE_CLICK_KEY"].is_null()) { Settings["TOGGLE_DOUBLE_CLICK_KEY"].get_to(ToggleDoubleClickKeybind.Key); }
+			if (!Settings["TOGGLE_DOUBLE_CLICK_ALT"].is_null()) { Settings["TOGGLE_DOUBLE_CLICK_ALT"].get_to(ToggleDoubleClickKeybind.Alt); }
+			if (!Settings["TOGGLE_DOUBLE_CLICK_CTRL"].is_null()) { Settings["TOGGLE_DOUBLE_CLICK_CTRL"].get_to(ToggleDoubleClickKeybind.Ctrl); }
+			if (!Settings["TOGGLE_DOUBLE_CLICK_SHIFT"].is_null()) { Settings["TOGGLE_DOUBLE_CLICK_SHIFT"].get_to(ToggleDoubleClickKeybind.Shift); }
 		}
 		else
 		{
@@ -116,10 +121,15 @@ namespace Settings
 		Settings["MOVE_ABOUT_FACE_CTRL"] = MoveAboutFaceKeybind.Ctrl;
 		Settings["MOVE_ABOUT_FACE_SHIFT"] = MoveAboutFaceKeybind.Shift;
 
-		Settings["RAPID_CLICK_KEY"] = HoldDoubleClickKeybind.Key;
-		Settings["RAPID_CLICK_ALT"] = HoldDoubleClickKeybind.Alt;
-		Settings["RAPID_CLICK_CTRL"] = HoldDoubleClickKeybind.Ctrl;
-		Settings["RAPID_CLICK_SHIFT"] = HoldDoubleClickKeybind.Shift;
+		Settings["HOLD_DOUBLE_CLICK_KEY"] = HoldDoubleClickKeybind.Key;
+		Settings["HOLD_DOUBLE_CLICK_ALT"] = HoldDoubleClickKeybind.Alt;
+		Settings["HOLD_DOUBLE_CLICK_CTRL"] = HoldDoubleClickKeybind.Ctrl;
+		Settings["HOLD_DOUBLE_CLICK_SHIFT"] = HoldDoubleClickKeybind.Shift;
+
+		Settings["TOGGLE_DOUBLE_CLICK_KEY"] = ToggleDoubleClickKeybind.Key;
+		Settings["TOGGLE_DOUBLE_CLICK_ALT"] = ToggleDoubleClickKeybind.Alt;
+		Settings["TOGGLE_DOUBLE_CLICK_CTRL"] = ToggleDoubleClickKeybind.Ctrl;
+		Settings["TOGGLE_DOUBLE_CLICK_SHIFT"] = ToggleDoubleClickKeybind.Shift;
 
 		Mutex.lock();
 		{
@@ -132,16 +142,16 @@ namespace Settings
 
 	void KeybindButton(std::string keybindName, Keybind& keybind, std::string keybindTooltip)
 	{
-		ImGui::Columns(2);
-		ImGui::Text(keybindName.c_str());
-		ImGui::NextColumn();
+		ImGui::TableNextRow();
+		ImGui::TableNextColumn();
+		ImGui::PaddedText(keybindName.c_str(), 6.0F, 4.0F);
+		ImGui::TableNextColumn();
 		if (ImGui::Button(std::string(Keybinds::KeybindToString(keybind) + "##" + keybindName).c_str()))
 		{
 			ImGui::OpenPopup(std::string("Set Keybind: " + keybindName).c_str(), ImGuiPopupFlags_AnyPopupLevel);
 		}
 		ImGui::TooltipGeneric(keybindTooltip.c_str());
-		ImGui::NextColumn();
-		ImGui::Columns(1);
+		ImGui::TableNextColumn();
 
 		KeybindModal(keybindName, keybind);
 	}
@@ -204,6 +214,7 @@ namespace Settings
 	Keybind JumpKeybind {};
 	Keybind AboutFaceKeybind {};
 	Keybind DodgeJumpKeybind {};
-	Keybind MoveAboutFaceKeybind{};
-	Keybind HoldDoubleClickKeybind{};
+	Keybind MoveAboutFaceKeybind {};
+	Keybind HoldDoubleClickKeybind {};
+	Keybind ToggleDoubleClickKeybind {};
 } // namespace Settings

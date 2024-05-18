@@ -20,7 +20,7 @@ void AddonRender();
 void AddonOptions();
 
 AddonDefinition AddonDef = {};
-HWND Game;
+HWND hGame = nullptr;
 HMODULE hSelf = nullptr;
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)
@@ -109,11 +109,12 @@ bool isMoveAboutFaceActive = false;
 
 bool isHoldDoubleClickPressed = false;
 bool isHoldDoubleClickActive = false;
+auto holdDoubleClickTimeout = std::chrono::system_clock::now().time_since_epoch();
 
 UINT AddonWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	// set window handle
-	Game = hWnd;
+	hGame = hWnd;
 
 	if (WM_KEYDOWN == uMsg || WM_SYSKEYDOWN == uMsg)
 	{
@@ -180,15 +181,15 @@ void AddonRender()
 		 **********************************************************************/
 		if (isDodgeJumpPressed)
 		{
-			Keybinds::KeyDown(Game, Settings::JumpKeybind);
-			Keybinds::KeyDown(Game, Settings::DodgeKeybind);
+			Keybinds::KeyDown(hGame, Settings::JumpKeybind);
+			Keybinds::KeyDown(hGame, Settings::DodgeKeybind);
 
 			isDodgeJumpActive = true;
 		}
 		else if (isDodgeJumpActive)
 		{
-			Keybinds::KeyUp(Game, Settings::JumpKeybind);
-			Keybinds::KeyUp(Game, Settings::DodgeKeybind);
+			Keybinds::KeyUp(hGame, Settings::JumpKeybind);
+			Keybinds::KeyUp(hGame, Settings::DodgeKeybind);
 
 			isDodgeJumpActive = false;
 		}
@@ -199,17 +200,17 @@ void AddonRender()
 		if (isMoveAboutFacePressed)
 		{
 			// hold camera
-			Keybinds::RMouseButtonUp(Game);	// TODO: Does this actually help?
-			Keybinds::LMouseButtonDown(Game);
+			Keybinds::RMouseButtonUp(hGame);	// TODO: Does this actually help?
+			Keybinds::LMouseButtonDown(hGame);
 
 			// start moving forward
-			Keybinds::KeyDown(Game, Settings::MoveForwardKeybind);
+			Keybinds::KeyDown(hGame, Settings::MoveForwardKeybind);
 
 			// turn character about face
 			if (!isMoveAboutFaceActive)
 			{
-				Keybinds::KeyDown(Game, Settings::AboutFaceKeybind);
-				Keybinds::KeyUp(Game, Settings::AboutFaceKeybind);
+				Keybinds::KeyDown(hGame, Settings::AboutFaceKeybind);
+				Keybinds::KeyUp(hGame, Settings::AboutFaceKeybind);
 			}
 
 			isMoveAboutFaceActive = true;
@@ -217,52 +218,71 @@ void AddonRender()
 		else if (isMoveAboutFaceActive)
 		{
 			// turn character about face
-			Keybinds::RMouseButtonDown(Game);
-			Keybinds::RMouseButtonUp(Game);
-			
+			Keybinds::RMouseButtonDown(hGame);
+			Keybinds::RMouseButtonUp(hGame);
+
 			// stop moving forward
-			Keybinds::KeyUp(Game, Settings::MoveForwardKeybind);
-			
+			Keybinds::KeyUp(hGame, Settings::MoveForwardKeybind);
+
 			// release camera
-			Keybinds::LMouseButtonUp(Game);
+			Keybinds::LMouseButtonUp(hGame);
 
 			isMoveAboutFaceActive = false;
 		}
-
+	}
+	else {
 		/***********************************************************************
 		 * Hold Double Click
 		 **********************************************************************/
 		if (isHoldDoubleClickPressed)
 		{
-			Keybinds::LMouseButtonDown(Game);
-			Keybinds::LMouseButtonUp(Game);
-			Keybinds::LMouseButtonDown(Game);
-			Keybinds::LMouseButtonUp(Game);
+			if (std::chrono::system_clock::now().time_since_epoch() > holdDoubleClickTimeout)
+			{
+				Keybinds::LMouseButtonDown(hGame);
+				Keybinds::LMouseButtonUp(hGame);
 
-			//isHoldDoubleClickActive = true;
+				isHoldDoubleClickActive = true;
+				//holdDoubleClickTimeout = std::chrono::system_clock::now().time_since_epoch() + std::chrono::milliseconds(50);
+			}
 		}
-		/*else if (isHoldDoubleClickActive)
+		else if (isHoldDoubleClickActive)
 		{
 			isHoldDoubleClickActive = false;
-		}*/
-
+		}
 	}
 }
 
 void AddonOptions()
 {
-	ImGui::Text("Control Options (In-Game Mappings)");
+	static const ImGuiTreeNodeFlags IMGUI_COLLAPSING_DEFAULT_OPEN = 0x20;
+	static const ImGuiTableFlags IMGUI_TABLE_BORDERS_INNER_H = 0x80;
 
-	Settings::KeybindButton("Move Forward", Settings::MoveForwardKeybind, "This should match your in-game keybind for \'Move Forward.\'\n");
-	Settings::KeybindButton("Dodge", Settings::DodgeKeybind, "This should match your in-game keybind for \'Dodge.\'\n");
-	Settings::KeybindButton("Jump", Settings::JumpKeybind, "This should match your in-game keybind for \'Jump.\'\n");
-	Settings::KeybindButton("About Face", Settings::AboutFaceKeybind, "This should match your in-game keybind for \'About Face.\'\n");
+	if (ImGui::CollapsingHeader("Movement", IMGUI_COLLAPSING_DEFAULT_OPEN))
+	{
+		ImGui::BeginTable("Movement", 3, IMGUI_TABLE_BORDERS_INNER_H);
+		Settings::KeybindButton("Move Forward", Settings::MoveForwardKeybind, "This should match your in-game keybind for \'Move Forward.\'\n");
+		Settings::KeybindButton("About Face", Settings::AboutFaceKeybind, "This should match your in-game keybind for \'About Face.\'\n");
+		Settings::KeybindButton("Move About Face", Settings::MoveAboutFaceKeybind, "Hold to move your character backwards without rotating the camera.\n");
+		Settings::KeybindButton("Dodge", Settings::DodgeKeybind, "This should match your in-game keybind for \'Dodge.\'\n");
+		Settings::KeybindButton("Jump", Settings::JumpKeybind, "This should match your in-game keybind for \'Jump.\'\n");
+		Settings::KeybindButton("Dodge-Jump", Settings::DodgeJumpKeybind, "Perform the dodge and jump actions simultaneously.\n");
+		ImGui::EndTable();
+	}
 
-	ImGui::Text("Extended Control Options");
+	if (ImGui::CollapsingHeader("Camera", IMGUI_COLLAPSING_DEFAULT_OPEN))
+	{
+		ImGui::BeginTable("Camera", 3, IMGUI_TABLE_BORDERS_INNER_H);
+		ImGui::TableNextRow(); ImGui::TableNextColumn(); ImGui::Text("Zoom In"); ImGui::TableNextColumn(); ImGui::TableNextColumn();
+		ImGui::TableNextRow(); ImGui::TableNextColumn(); ImGui::Text("Zoom Out"); ImGui::TableNextColumn(); ImGui::TableNextColumn();
+		ImGui::TableNextRow(); ImGui::TableNextColumn(); ImGui::Text("Auto-Adjust Zoom"); ImGui::TableNextColumn(); ImGui::TableNextColumn();
+		ImGui::EndTable();
+	}
 
-	Settings::KeybindButton("Dodge-Jump", Settings::DodgeJumpKeybind, "Perform the dodge and jump actions simultaneously.\n");
-	Settings::KeybindButton("Move About Face", Settings::MoveAboutFaceKeybind, "Hold to move your character backwards without rotating the camera.\n");
-
-	ImGui::Text("Macros & Utilities");
-	Settings::KeybindButton("Hold Double Click", Settings::HoldDoubleClickKeybind, "Hold to repeatedly double-click at your cursor's current position.\n");
+	if (ImGui::CollapsingHeader("Utilities", IMGUI_COLLAPSING_DEFAULT_OPEN))
+	{
+		ImGui::BeginTable("Utilities", 3, IMGUI_TABLE_BORDERS_INNER_H);
+		Settings::KeybindButton("Hold Double-Click", Settings::HoldDoubleClickKeybind, "Hold button to repeatedly double-click at your cursor's current position.\n");
+		Settings::KeybindButton("Toggle Double-Click", Settings::ToggleDoubleClickKeybind, "Set a timer to recurringly double-click at your cursor's current position.\n");
+		ImGui::EndTable();
+	}
 }
