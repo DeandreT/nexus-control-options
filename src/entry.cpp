@@ -6,11 +6,11 @@
 
 #include "nexus/Nexus.h"
 #include "mumble/Mumble.h"
+#include "keybinds/Keybinds.h"
 #include "imgui/imgui.h"
 
 #include "Shared.h"
 #include "Settings.h"
-#include "Keys.h"
 
 void OnMumbleIdentityUpdated(void* aEventArgs);
 void AddonLoad(AddonAPI* aApi);
@@ -83,9 +83,6 @@ void AddonLoad(AddonAPI* aApi)
 
 	APIDefs->RegisterWndProc(AddonWndProc);
 
-	// generate scancode lookup table for keybindings
-	Keys::GenerateScancodeLookupTable();
-
 	std::filesystem::create_directory(APIDefs->GetAddonDirectory("ControlOptions"));
 	Settings::Load(APIDefs->GetAddonDirectory("ControlOptions/settings.json"));
 }
@@ -124,7 +121,7 @@ UINT AddonWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		kb.Alt = GetKeyState(VK_MENU) & 0x8000;
 		kb.Ctrl = GetKeyState(VK_CONTROL) & 0x8000;
 		kb.Shift = GetKeyState(VK_SHIFT) & 0x8000;
-		kb.Key = Keys::LParamToKMF(lParam).GetScanCode();
+		kb.Key = Keybinds::GetKeyStateFromLParam(lParam);
 
 		// if shift, ctrl or alt set key to 0
 		if (wParam == VK_SHIFT || wParam == VK_CONTROL || wParam == VK_MENU)
@@ -141,9 +138,9 @@ UINT AddonWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		}
 		else
 		{
-			isDodgeJumpPressed = Keys::isKeyDown(Settings::DodgeJumpKeybind);
-			isMoveAboutFacePressed = Keys::isKeyDown(Settings::MoveAboutFaceKeybind);
-			isHoldDoubleClickPressed = Keys::isKeyDown(Settings::HoldDoubleClickKeybind);
+			isDodgeJumpPressed = Keybinds::isKeyDown(Settings::DodgeJumpKeybind);
+			isMoveAboutFacePressed = Keybinds::isKeyDown(Settings::MoveAboutFaceKeybind);
+			isHoldDoubleClickPressed = Keybinds::isKeyDown(Settings::HoldDoubleClickKeybind);
 		}
 	}
 	else if (WM_KEYUP == uMsg || WM_SYSKEYUP == uMsg)
@@ -152,7 +149,7 @@ UINT AddonWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		kb.Alt = GetKeyState(VK_MENU) & 0x8000;
 		kb.Ctrl = GetKeyState(VK_CONTROL) & 0x8000;
 		kb.Shift = GetKeyState(VK_SHIFT) & 0x8000;
-		kb.Key = Keys::LParamToKMF(lParam).GetScanCode();
+		kb.Key = Keybinds::GetKeyStateFromLParam(lParam);
 
 		// if shift, ctrl or alt set key to 0
 		if (wParam == VK_SHIFT || wParam == VK_CONTROL || wParam == VK_MENU)
@@ -183,15 +180,15 @@ void AddonRender()
 		 **********************************************************************/
 		if (isDodgeJumpPressed)
 		{
-			Keys::KeyDown(Game, Settings::DodgeKeybind);
-			Keys::KeyDown(Game, Settings::JumpKeybind);
+			Keybinds::KeyDown(Game, Settings::JumpKeybind);
+			Keybinds::KeyDown(Game, Settings::DodgeKeybind);
 
 			isDodgeJumpActive = true;
 		}
 		else if (isDodgeJumpActive)
 		{
-			Keys::KeyUp(Game, Settings::JumpKeybind);
-			Keys::KeyUp(Game, Settings::DodgeKeybind);
+			Keybinds::KeyUp(Game, Settings::JumpKeybind);
+			Keybinds::KeyUp(Game, Settings::DodgeKeybind);
 
 			isDodgeJumpActive = false;
 		}
@@ -202,17 +199,17 @@ void AddonRender()
 		if (isMoveAboutFacePressed)
 		{
 			// hold camera
-			Keys::RMouseButtonUp(Game);	// TODO: Does this actually help?
-			Keys::LMouseButtonDown(Game);
+			Keybinds::RMouseButtonUp(Game);	// TODO: Does this actually help?
+			Keybinds::LMouseButtonDown(Game);
 
 			// start moving forward
-			Keys::KeyDown(Game, Settings::MoveForwardKeybind);
+			Keybinds::KeyDown(Game, Settings::MoveForwardKeybind);
 
 			// turn character about face
 			if (!isMoveAboutFaceActive)
 			{
-				Keys::KeyDown(Game, Settings::AboutFaceKeybind);
-				Keys::KeyUp(Game, Settings::AboutFaceKeybind);
+				Keybinds::KeyDown(Game, Settings::AboutFaceKeybind);
+				Keybinds::KeyUp(Game, Settings::AboutFaceKeybind);
 			}
 
 			isMoveAboutFaceActive = true;
@@ -220,14 +217,14 @@ void AddonRender()
 		else if (isMoveAboutFaceActive)
 		{
 			// turn character about face
-			Keys::RMouseButtonDown(Game);
-			Keys::RMouseButtonUp(Game);
+			Keybinds::RMouseButtonDown(Game);
+			Keybinds::RMouseButtonUp(Game);
 			
 			// stop moving forward
-			Keys::KeyUp(Game, Settings::MoveForwardKeybind);
+			Keybinds::KeyUp(Game, Settings::MoveForwardKeybind);
 			
 			// release camera
-			Keys::LMouseButtonUp(Game);
+			Keybinds::LMouseButtonUp(Game);
 
 			isMoveAboutFaceActive = false;
 		}
@@ -237,10 +234,10 @@ void AddonRender()
 		 **********************************************************************/
 		if (isHoldDoubleClickPressed)
 		{
-			Keys::LMouseButtonDown(Game);
-			Keys::LMouseButtonUp(Game);
-			Keys::LMouseButtonDown(Game);
-			Keys::LMouseButtonUp(Game);
+			Keybinds::LMouseButtonDown(Game);
+			Keybinds::LMouseButtonUp(Game);
+			Keybinds::LMouseButtonDown(Game);
+			Keybinds::LMouseButtonUp(Game);
 
 			//isHoldDoubleClickActive = true;
 		}

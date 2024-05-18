@@ -51,7 +51,7 @@
     <ClInclude Include="src\Settings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Keys.h">
+    <ClInclude Include="src\keybinds\Keybinds.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -80,7 +80,7 @@
     <ClCompile Include="src\Settings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Keys.cpp">
+    <ClCompile Include="src\keybinds\Keybinds.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

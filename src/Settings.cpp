@@ -1,8 +1,9 @@
 #include <filesystem>
 #include <fstream>
 
+#include "keybinds/Keybinds.h"
+
 #include "Settings.h"
-#include "Keys.h"
 
 namespace Settings
 {
@@ -134,7 +135,7 @@ namespace Settings
 		ImGui::Columns(2);
 		ImGui::Text(keybindName.c_str());
 		ImGui::NextColumn();
-		if (ImGui::Button(std::string(Keys::KeybindToString(keybind) + "##" + keybindName).c_str()))
+		if (ImGui::Button(std::string(Keybinds::KeybindToString(keybind) + "##" + keybindName).c_str()))
 		{
 			ImGui::OpenPopup(std::string("Set Keybind: " + keybindName).c_str(), ImGuiPopupFlags_AnyPopupLevel);
 		}
@@ -156,7 +157,7 @@ namespace Settings
 			{
 				CurrentKeybind = keybind;
 			}
-			ImGui::Text(Keys::KeybindToString(CurrentKeybind).c_str());
+			ImGui::Text(Keybinds::KeybindToString(CurrentKeybind).c_str());
 
 			if (ImGui::Button("Unbind"))
 			{

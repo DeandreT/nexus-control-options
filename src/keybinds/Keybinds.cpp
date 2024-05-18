@@ -1,4 +1,7 @@
-#include "Keys.h"
+#include <algorithm>
+#include <map>
+
+#include "Keybinds.h"
 
 bool operator==(const Keybind& lhs, const Keybind& rhs)
 {
@@ -13,7 +16,28 @@ bool operator!=(const Keybind& lhs, const Keybind& rhs)
 	return !(lhs == rhs);
 }
 
-namespace Keys
+struct KeystrokeMessageFlags
+{
+	unsigned RepeatCount : 16;
+	unsigned ScanCode : 8;
+	unsigned ExtendedFlag : 1;
+	unsigned Reserved : 4;
+	unsigned ContextCode : 1;
+	unsigned PreviousKeyState : 1;
+	unsigned TransitionState : 1;
+};
+
+LPARAM GetLParam(uint32_t key, bool down);
+KeystrokeMessageFlags& LParamToKMF(LPARAM& lParam);
+LPARAM& KMFToLParam(KeystrokeMessageFlags& kmf);
+unsigned short GetScanCode(KeystrokeMessageFlags& kmf);
+void InitialiseScanCodeLookupTable();
+const char* ConvertToUTF8(const char* multibyteStr);
+
+static std::map<unsigned short, std::string> ScanCodeLookupTable;
+static bool isScanCodeLookupTableInitialised = false;
+
+namespace Keybinds
 {
 	/***************************************************************************
 	 * Get key positions
@@ -116,39 +140,13 @@ namespace Keys
 	}
 
 	/***************************************************************************
-	 * Scancode Lookup Table
-	 **************************************************************************/
-
-	std::map<unsigned short, std::string> ScancodeLookupTable;
-
-	void GenerateScancodeLookupTable()
-	{
-		for (long long i = 0; i < 255; i++)
-		{
-			struct KeystrokeMessageFlags key{};
-			key.ScanCode = i;
-			char* buff = new char[64];
-			std::string str;
-			GetKeyNameTextA(static_cast<LONG>(KMFToLParam(key)), buff, 64);
-			str.append(buff);
-
-			ScancodeLookupTable[key.GetScanCode()] = str;
-
-			key.ExtendedFlag = 1;
-			buff = new char[64];
-			str = "";
-			GetKeyNameTextA(static_cast<LONG>(KMFToLParam(key)), buff, 64);
-			str.append(buff);
-
-			ScancodeLookupTable[key.GetScanCode()] = str;
-
-			delete[] buff;
-		}
-	}
-
-	/***************************************************************************
 	 * Utilities
 	 **************************************************************************/
+
+	unsigned short GetKeyStateFromLParam(LPARAM lParam)
+	{
+		return GetScanCode(LParamToKMF(lParam));
+	}
 
 	std::string KeybindToString(Keybind& keybind)
 	{
@@ -173,14 +171,19 @@ namespace Keys
 		auto vk = MapVirtualKeyA(keybind.Key, MAPVK_VSC_TO_VK);
 		if (vk >= 65 && vk <= 90 || vk >= 48 && vk <= 57)
 		{
-			// Keys in range [A, Z] and [0, 9]
+			// keys in range [A, Z] and [0, 9]
 			GetKeyNameTextA(keybind.Key << 16, buff, 100);
 			str.append(buff);
 		}
 		else
 		{
-			auto it = ScancodeLookupTable.find(keybind.Key);
-			if (it != ScancodeLookupTable.end())
+			if (!isScanCodeLookupTableInitialised)
+			{
+				InitialiseScanCodeLookupTable();
+			}
+
+			auto it = ScanCodeLookupTable.find(keybind.Key);
+			if (it != ScanCodeLookupTable.end())
 			{
 				str.append(it->second);
 			}
@@ -196,56 +199,96 @@ namespace Keys
 
 		return std::string(utf8_bytes);
 	}
+} // namespace Keybinds
 
-	const char* ConvertToUTF8(const char* multibyteStr)
+LPARAM GetLParam(uint32_t key, bool down)
+{
+	uint64_t lParam;
+
+	lParam = down ? 0 : 1; // transition state
+	lParam = lParam << 1;
+	lParam += down ? 0 : 1; // previous key state
+	lParam = lParam << 1;
+	lParam += 0; // context code
+	lParam = lParam << 1;
+	lParam = lParam << 4;
+	lParam = lParam << 1;
+	lParam = lParam << 8;
+	lParam += MapVirtualKeyA(key, MAPVK_VK_TO_VSC);
+	lParam = lParam << 16;
+	lParam += 1;
+
+	return lParam;
+}
+
+KeystrokeMessageFlags& LParamToKMF(LPARAM& lParam)
+{
+	return *(KeystrokeMessageFlags*)&lParam;
+}
+
+LPARAM& KMFToLParam(KeystrokeMessageFlags& kmf)
+{
+	return *(LPARAM*)&kmf;
+}
+
+unsigned short GetScanCode(KeystrokeMessageFlags& kmf)
+{
+	unsigned short scanCode = kmf.ScanCode;
+
+	if (kmf.ExtendedFlag)
 	{
-		char* utf8Str = nullptr;
+		scanCode |= 0xE000;
+	}
 
-		int wideCharCount = MultiByteToWideChar(CP_ACP, 0, multibyteStr, -1, NULL, 0);
-		if (wideCharCount > 0)
+	return scanCode;
+}
+
+void InitialiseScanCodeLookupTable()
+{
+	for (long long i = 0; i < 255; i++)
+	{
+		struct KeystrokeMessageFlags key {};
+		key.ScanCode = i;
+		char* buff = new char[64];
+		std::string str;
+		GetKeyNameTextA(static_cast<LONG>(KMFToLParam(key)), buff, 64);
+		str.append(buff);
+
+		ScanCodeLookupTable[GetScanCode(key)] = str;
+
+		key.ExtendedFlag = 1;
+		buff = new char[64];
+		str = "";
+		GetKeyNameTextA(static_cast<LONG>(KMFToLParam(key)), buff, 64);
+		str.append(buff);
+
+		ScanCodeLookupTable[GetScanCode(key)] = str;
+
+		delete[] buff;
+	}
+
+	isScanCodeLookupTableInitialised = true;
+}
+
+const char* ConvertToUTF8(const char* multibyteStr)
+{
+	char* utf8Str = nullptr;
+
+	int wideCharCount = MultiByteToWideChar(CP_ACP, 0, multibyteStr, -1, NULL, 0);
+	if (wideCharCount > 0)
+	{
+		wchar_t* wideCharBuff = new wchar_t[wideCharCount];
+		MultiByteToWideChar(CP_ACP, 0, multibyteStr, -1, wideCharBuff, wideCharCount);
+
+		int utf8Count = WideCharToMultiByte(CP_UTF8, 0, wideCharBuff, -1, NULL, 0, NULL, NULL);
+		if (utf8Count > 0)
 		{
-			wchar_t* wideCharBuff = new wchar_t[wideCharCount];
-			MultiByteToWideChar(CP_ACP, 0, multibyteStr, -1, wideCharBuff, wideCharCount);
-
-			int utf8Count = WideCharToMultiByte(CP_UTF8, 0, wideCharBuff, -1, NULL, 0, NULL, NULL);
-			if (utf8Count > 0)
-			{
-				utf8Str = new char[utf8Count];
-				WideCharToMultiByte(CP_UTF8, 0, wideCharBuff, -1, utf8Str, utf8Count, NULL, NULL);
-			}
-
-			delete[] wideCharBuff;
+			utf8Str = new char[utf8Count];
+			WideCharToMultiByte(CP_UTF8, 0, wideCharBuff, -1, utf8Str, utf8Count, NULL, NULL);
 		}
 
-		return utf8Str;
+		delete[] wideCharBuff;
 	}
 
-	KeystrokeMessageFlags& LParamToKMF(LPARAM& lParam)
-	{
-		return *(KeystrokeMessageFlags*)&lParam;
-	}
-
-	LPARAM& KMFToLParam(KeystrokeMessageFlags& kmf)
-	{
-		return *(LPARAM*)&kmf;
-	}
-
-	LPARAM GetLParam(uint32_t key, bool down)
-	{
-		uint64_t lParam;
-		lParam = down ? 0 : 1; // transition state
-		lParam = lParam << 1;
-		lParam += down ? 0 : 1; // previous key state
-		lParam = lParam << 1;
-		lParam += 0; // context code
-		lParam = lParam << 1;
-		lParam = lParam << 4;
-		lParam = lParam << 1;
-		lParam = lParam << 8;
-		lParam += MapVirtualKeyA(key, MAPVK_VK_TO_VSC);
-		lParam = lParam << 16;
-		lParam += 1;
-
-		return lParam;
-	}
-} // namespace Keys
+	return utf8Str;
+}
