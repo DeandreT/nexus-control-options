@@ -78,26 +78,6 @@ namespace Keybinds
 		}
 	}
 
-	void LMouseButtonDown(HWND hWnd)
-	{
-		POINT MousePosition;
-		if (GetCursorPos(&MousePosition))
-		{
-			PostMessage(hWnd, WM_LBUTTONDOWN, MK_LBUTTON, MAKELPARAM(MousePosition.x, MousePosition.y));
-			Sleep(5);
-		}
-	}
-
-	void RMouseButtonDown(HWND hWnd)
-	{
-		POINT MousePosition;
-		if (GetCursorPos(&MousePosition))
-		{
-			PostMessage(hWnd, WM_RBUTTONDOWN, MK_RBUTTON, MAKELPARAM(MousePosition.x, MousePosition.y));
-			Sleep(5);
-		}
-	}
-
 	void KeyUp(HWND hWnd, Keybind& keybind)
 	{
 		if (keybind.Key) {
@@ -119,12 +99,52 @@ namespace Keybinds
 		}
 	}
 
+	void LMouseButtonDown(HWND hWnd)
+	{
+		POINT MousePosition;
+		if (GetCursorPos(&MousePosition))
+		{
+			PostMessage(hWnd, WM_LBUTTONDOWN, MK_LBUTTON, MAKELPARAM(MousePosition.x, MousePosition.y));
+			Sleep(5);
+		}
+	}
+
+	void LMouseButtonDblClk(HWND hWnd)
+	{
+		POINT MousePosition;
+		if (GetCursorPos(&MousePosition))
+		{
+			PostMessage(hWnd, WM_LBUTTONDBLCLK, MK_LBUTTON, MAKELPARAM(MousePosition.x, MousePosition.y));
+			Sleep(5);
+		}
+	}
+
 	void LMouseButtonUp(HWND hWnd)
 	{
 		POINT MousePosition;
 		if (GetCursorPos(&MousePosition))
 		{
 			PostMessage(hWnd, WM_LBUTTONUP, MK_LBUTTON, MAKELPARAM(MousePosition.x, MousePosition.y));
+			Sleep(5);
+		}
+	}
+
+	void RMouseButtonDown(HWND hWnd)
+	{
+		POINT MousePosition;
+		if (GetCursorPos(&MousePosition))
+		{
+			PostMessage(hWnd, WM_RBUTTONDOWN, MK_RBUTTON, MAKELPARAM(MousePosition.x, MousePosition.y));
+			Sleep(5);
+		}
+	}
+
+	void RMouseButtonDblClk(HWND hWnd)
+	{
+		POINT MousePosition;
+		if (GetCursorPos(&MousePosition))
+		{
+			PostMessage(hWnd, WM_RBUTTONDBLCLK, MK_RBUTTON, MAKELPARAM(MousePosition.x, MousePosition.y));
 			Sleep(5);
 		}
 	}

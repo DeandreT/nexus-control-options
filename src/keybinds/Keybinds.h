@@ -17,8 +17,10 @@ namespace Keybinds
 	void KeyDown(HWND hWnd, Keybind& keybind);
 	void KeyUp(HWND hWnd, Keybind& keybind);
 	void LMouseButtonDown(HWND hWnd);
+	void LMouseButtonDblClk(HWND hWnd);
 	void LMouseButtonUp(HWND hWnd);
 	void RMouseButtonDown(HWND hWnd);
+	void RMouseButtonDblClk(HWND hWnd);
 	void RMouseButtonUp(HWND hWnd);
 
 	// utilities

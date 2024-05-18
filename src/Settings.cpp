@@ -204,7 +204,50 @@ namespace Settings
 		}
 	}
 
-	/* Set keybind */
+	void ToggleDoubleClickModal()
+	{
+		if (ImGui::BeginPopupModal("Toggle Double-Click"))
+		{
+			bool closeModal = false;
+			isToggleDoubleClickActive = false;
+			toggleDoubleClickInterval = 0.5F;
+
+			if (ImGui::InputFloat("##ToggleDoubleClickInterval", &toggleDoubleClickInterval, 0.25F, 1.0F, "%.2f"))
+			{
+				Save();
+			}
+
+			if (ImGui::Button("Unbind##DoubleClick"))
+			{
+				closeModal = true;
+			}
+
+			ImGui::SameLine(); ImGui::Spacing();
+			ImGui::SameLine(); ImGui::Spacing();
+			ImGui::SameLine(); ImGui::Spacing();
+
+			ImGui::SameLine();
+			if (ImGui::Button("Accept##DoubleClick"))
+			{
+				closeModal = true;
+			}
+
+			ImGui::SameLine();
+			if (ImGui::Button("Cancel##DoubleClick"))
+			{
+				closeModal = true;
+			}
+
+			if (closeModal)
+			{
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::EndPopup();
+		}
+	}
+
+	/* Set Keybind */
 	Keybind CurrentKeybind {};
 	bool isSettingKeybind = false;
 
@@ -217,4 +260,8 @@ namespace Settings
 	Keybind MoveAboutFaceKeybind {};
 	Keybind HoldDoubleClickKeybind {};
 	Keybind ToggleDoubleClickKeybind {};
+	
+	/* Toggle Double-Click */
+	bool isToggleDoubleClickActive = false;
+	float toggleDoubleClickInterval = 0.0F;
 } // namespace Settings

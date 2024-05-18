@@ -47,7 +47,7 @@ extern "C" __declspec(dllexport) AddonDefinition * GetAddonDef()
 	AddonDef.Name = "Extended Control Options";
 	AddonDef.Version.Major = 2024;
 	AddonDef.Version.Minor = 5;
-	AddonDef.Version.Build = 17;
+	AddonDef.Version.Build = 18;
 	AddonDef.Version.Revision = 1;
 	AddonDef.Author = "Jordan";
 	AddonDef.Description = "Provides additional controls and macros not available via the Control Options menu.";
@@ -108,63 +108,45 @@ bool isMoveAboutFacePressed = false;
 bool isMoveAboutFaceActive = false;
 
 bool isHoldDoubleClickPressed = false;
-bool isHoldDoubleClickActive = false;
-auto holdDoubleClickTimeout = std::chrono::system_clock::now().time_since_epoch();
+bool isToggleDoubleClickPressed = false;
 
 UINT AddonWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	// set window handle
 	hGame = hWnd;
 
-	if (WM_KEYDOWN == uMsg || WM_SYSKEYDOWN == uMsg)
+	if (Settings::isSettingKeybind)
 	{
-		Keybind kb{};
-		kb.Alt = GetKeyState(VK_MENU) & 0x8000;
-		kb.Ctrl = GetKeyState(VK_CONTROL) & 0x8000;
-		kb.Shift = GetKeyState(VK_SHIFT) & 0x8000;
-		kb.Key = Keybinds::GetKeyStateFromLParam(lParam);
-
-		// if shift, ctrl or alt set key to 0
-		if (wParam == VK_SHIFT || wParam == VK_CONTROL || wParam == VK_MENU)
+		if (WM_KEYDOWN == uMsg || WM_SYSKEYDOWN == uMsg)
 		{
-			kb.Key = 0;
-			if (wParam == VK_SHIFT) { kb.Shift = true; }
-			if (wParam == VK_CONTROL) { kb.Ctrl = true; }
-			if (wParam == VK_MENU) { kb.Alt = true; }
-		}
+			Keybind kb {};
 
-		if (Settings::isSettingKeybind)
-		{
+			kb.Alt = GetKeyState(VK_MENU) & 0x8000;
+			kb.Ctrl = GetKeyState(VK_CONTROL) & 0x8000;
+			kb.Shift = GetKeyState(VK_SHIFT) & 0x8000;
+			kb.Key = Keybinds::GetKeyStateFromLParam(lParam);
+
+			// if shift, ctrl or alt set key to 0
+			if (wParam == VK_SHIFT || wParam == VK_CONTROL || wParam == VK_MENU)
+			{
+				kb.Key = 0;
+				if (wParam == VK_SHIFT) { kb.Shift = true; }
+				if (wParam == VK_CONTROL) { kb.Ctrl = true; }
+				if (wParam == VK_MENU) { kb.Alt = true; }
+			}
+
 			Settings::CurrentKeybind = kb;
-		}
-		else
-		{
-			isDodgeJumpPressed = Keybinds::isKeyDown(Settings::DodgeJumpKeybind);
-			isMoveAboutFacePressed = Keybinds::isKeyDown(Settings::MoveAboutFaceKeybind);
-			isHoldDoubleClickPressed = Keybinds::isKeyDown(Settings::HoldDoubleClickKeybind);
+
+			return 0;
 		}
 	}
-	else if (WM_KEYUP == uMsg || WM_SYSKEYUP == uMsg)
+	else
 	{
-		Keybind kb{};
-		kb.Alt = GetKeyState(VK_MENU) & 0x8000;
-		kb.Ctrl = GetKeyState(VK_CONTROL) & 0x8000;
-		kb.Shift = GetKeyState(VK_SHIFT) & 0x8000;
-		kb.Key = Keybinds::GetKeyStateFromLParam(lParam);
-
-		// if shift, ctrl or alt set key to 0
-		if (wParam == VK_SHIFT || wParam == VK_CONTROL || wParam == VK_MENU)
-		{
-			kb.Key = 0;
-			if (wParam == VK_SHIFT) { kb.Shift = true; }
-			if (wParam == VK_CONTROL) { kb.Ctrl = true; }
-			if (wParam == VK_MENU) { kb.Alt = true; }
-		}
-	}
-
-	if (Settings::isSettingKeybind && (uMsg == WM_SYSKEYDOWN || uMsg == WM_KEYDOWN || uMsg == WM_SYSKEYUP || uMsg == WM_KEYUP))
-	{
-		return 0;
+		// check keybinds
+		isDodgeJumpPressed = Keybinds::isKeyDown(Settings::DodgeJumpKeybind);
+		isMoveAboutFacePressed = Keybinds::isKeyDown(Settings::MoveAboutFaceKeybind);
+		isHoldDoubleClickPressed = Keybinds::isKeyDown(Settings::HoldDoubleClickKeybind);
+		isToggleDoubleClickPressed = Keybinds::isKeyDown(Settings::ToggleDoubleClickKeybind);
 	}
 
 	return uMsg;
@@ -229,25 +211,22 @@ void AddonRender()
 
 			isMoveAboutFaceActive = false;
 		}
-	}
-	else {
+		
 		/***********************************************************************
-		 * Hold Double Click
+		 * Hold Double-Click
 		 **********************************************************************/
 		if (isHoldDoubleClickPressed)
 		{
-			if (std::chrono::system_clock::now().time_since_epoch() > holdDoubleClickTimeout)
-			{
-				Keybinds::LMouseButtonDown(hGame);
-				Keybinds::LMouseButtonUp(hGame);
-
-				isHoldDoubleClickActive = true;
-				//holdDoubleClickTimeout = std::chrono::system_clock::now().time_since_epoch() + std::chrono::milliseconds(50);
-			}
+			Keybinds::LMouseButtonDblClk(hGame);
+			Keybinds::LMouseButtonUp(hGame);
 		}
-		else if (isHoldDoubleClickActive)
+
+		/***********************************************************************
+		 * Toggle Double-Click
+		 **********************************************************************/
+		if (isToggleDoubleClickPressed)
 		{
-			isHoldDoubleClickActive = false;
+			Settings::ToggleDoubleClickModal();
 		}
 	}
 }
