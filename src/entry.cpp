@@ -108,7 +108,10 @@ bool isMoveAboutFacePressed = false;
 bool isMoveAboutFaceActive = false;
 
 bool isHoldDoubleClickPressed = false;
-bool isToggleDoubleClickPressed = false;
+
+bool isSetDoubleClickPressed = false;
+bool isSetDoubleClickReleased = true;
+auto doubleClickTimeout = std::chrono::system_clock::now().time_since_epoch();
 
 UINT AddonWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -146,11 +149,13 @@ UINT AddonWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		isDodgeJumpPressed = Keybinds::isKeyDown(Settings::DodgeJumpKeybind);
 		isMoveAboutFacePressed = Keybinds::isKeyDown(Settings::MoveAboutFaceKeybind);
 		isHoldDoubleClickPressed = Keybinds::isKeyDown(Settings::HoldDoubleClickKeybind);
-		isToggleDoubleClickPressed = Keybinds::isKeyDown(Settings::ToggleDoubleClickKeybind);
+		isSetDoubleClickPressed = Keybinds::isKeyDown(Settings::SetDoubleClickKeybind);
 	}
 
 	return uMsg;
 }
+
+
 
 void AddonRender()
 {
@@ -224,9 +229,51 @@ void AddonRender()
 		/***********************************************************************
 		 * Toggle Double-Click
 		 **********************************************************************/
-		if (isToggleDoubleClickPressed)
+		if (isSetDoubleClickPressed || Settings::isSettingDoubleClick)
 		{
-			Settings::ToggleDoubleClickModal();
+			if (!Settings::isDoubleClickActive)
+			{
+				// activate double-click 
+				if (isSetDoubleClickReleased)
+				{
+					std::string modalName = "Set Double-Click";
+					ImGui::OpenPopup(modalName.c_str(), ImGuiPopupFlags_AnyPopupLevel);
+					Settings::SetDoubleClickModal(modalName);
+				}
+			}
+			else
+			{
+				// deactivate double-click
+				Settings::isDoubleClickActive = false;
+				doubleClickTimeout = std::chrono::system_clock::now().time_since_epoch() + std::chrono::milliseconds(1000);
+				isSetDoubleClickReleased = false;
+			}
+
+		}
+		else if (Settings::isDoubleClickActive)
+		{
+			if (std::chrono::system_clock::now().time_since_epoch() > doubleClickTimeout)
+			{
+				// get current cursor position
+				POINT CursorPos;
+				GetCursorPos(&CursorPos);
+
+				// set cursor position and double-click
+				SetCursorPos(Settings::doubleClickPosX, Settings::doubleClickPosY);
+				Keybinds::LMouseButtonDblClk(hGame);
+				Keybinds::LMouseButtonUp(hGame);
+
+				// restore previous cursor position
+				SetCursorPos(CursorPos.x, CursorPos.y);
+
+				// set timeout interval
+				auto doubleClickIntervalMs = std::chrono::milliseconds(static_cast<int>(Settings::doubleClickInterval * 1000));
+				doubleClickTimeout = std::chrono::system_clock::now().time_since_epoch() + doubleClickIntervalMs;
+			}
+		}
+		else
+		{
+			isSetDoubleClickReleased = true;
 		}
 	}
 }
@@ -261,7 +308,8 @@ void AddonOptions()
 	{
 		ImGui::BeginTable("Utilities", 3, IMGUI_TABLE_BORDERS_INNER_H);
 		Settings::KeybindButton("Hold Double-Click", Settings::HoldDoubleClickKeybind, "Hold button to repeatedly double-click at your cursor's current position.\n");
-		Settings::KeybindButton("Toggle Double-Click", Settings::ToggleDoubleClickKeybind, "Set a timer to recurringly double-click at your cursor's current position.\n");
+		Settings::KeybindButton("Set Double-Click", Settings::SetDoubleClickKeybind, "Set a timer to recurringly double-click at your cursor's current\n\
+position. Press this button again to end the double-click macro.");
 		ImGui::EndTable();
 	}
 }

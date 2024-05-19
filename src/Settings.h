@@ -20,9 +20,9 @@ namespace Settings
 	void Save();
 
 	void KeybindButton(std::string keybindName, Keybind& keybind, std::string keybindTooltip);
-	void KeybindModal(std::string KeybindName, Keybind& keybind);
+	void KeybindModal(std::string keybindName, Keybind& keybind);
 
-	void ToggleDoubleClickModal();
+	void SetDoubleClickModal(std::string modalName);
 
 	/* Set Keybind */
 	extern Keybind CurrentKeybind;
@@ -36,11 +36,14 @@ namespace Settings
 	extern Keybind DodgeJumpKeybind;
 	extern Keybind MoveAboutFaceKeybind;
 	extern Keybind HoldDoubleClickKeybind;
-	extern Keybind ToggleDoubleClickKeybind;
+	extern Keybind SetDoubleClickKeybind;
 
-	/* Toggle Double-Click */
-	extern bool isToggleDoubleClickActive;
-	extern float toggleDoubleClickInterval;
+	/* Set Double-Click */
+	extern bool isSettingDoubleClick;
+	extern bool isDoubleClickActive;
+	extern float doubleClickInterval;
+	extern int doubleClickPosX;
+	extern int doubleClickPosY;
 } // namespace Settings
 
 namespace ImGui

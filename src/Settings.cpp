@@ -77,10 +77,10 @@ namespace Settings
 			if (!Settings["HOLD_DOUBLE_CLICK_CTRL"].is_null()) { Settings["HOLD_DOUBLE_CLICK_CTRL"].get_to(HoldDoubleClickKeybind.Ctrl); }
 			if (!Settings["HOLD_DOUBLE_CLICK_SHIFT"].is_null()) { Settings["HOLD_DOUBLE_CLICK_SHIFT"].get_to(HoldDoubleClickKeybind.Shift); }
 
-			if (!Settings["TOGGLE_DOUBLE_CLICK_KEY"].is_null()) { Settings["TOGGLE_DOUBLE_CLICK_KEY"].get_to(ToggleDoubleClickKeybind.Key); }
-			if (!Settings["TOGGLE_DOUBLE_CLICK_ALT"].is_null()) { Settings["TOGGLE_DOUBLE_CLICK_ALT"].get_to(ToggleDoubleClickKeybind.Alt); }
-			if (!Settings["TOGGLE_DOUBLE_CLICK_CTRL"].is_null()) { Settings["TOGGLE_DOUBLE_CLICK_CTRL"].get_to(ToggleDoubleClickKeybind.Ctrl); }
-			if (!Settings["TOGGLE_DOUBLE_CLICK_SHIFT"].is_null()) { Settings["TOGGLE_DOUBLE_CLICK_SHIFT"].get_to(ToggleDoubleClickKeybind.Shift); }
+			if (!Settings["SET_DOUBLE_CLICK_KEY"].is_null()) { Settings["SET_DOUBLE_CLICK_KEY"].get_to(SetDoubleClickKeybind.Key); }
+			if (!Settings["SET_DOUBLE_CLICK_ALT"].is_null()) { Settings["SET_DOUBLE_CLICK_ALT"].get_to(SetDoubleClickKeybind.Alt); }
+			if (!Settings["SET_DOUBLE_CLICK_CTRL"].is_null()) { Settings["SET_DOUBLE_CLICK_CTRL"].get_to(SetDoubleClickKeybind.Ctrl); }
+			if (!Settings["SET_DOUBLE_CLICK_SHIFT"].is_null()) { Settings["SET_DOUBLE_CLICK_SHIFT"].get_to(SetDoubleClickKeybind.Shift); }
 		}
 		else
 		{
@@ -126,10 +126,10 @@ namespace Settings
 		Settings["HOLD_DOUBLE_CLICK_CTRL"] = HoldDoubleClickKeybind.Ctrl;
 		Settings["HOLD_DOUBLE_CLICK_SHIFT"] = HoldDoubleClickKeybind.Shift;
 
-		Settings["TOGGLE_DOUBLE_CLICK_KEY"] = ToggleDoubleClickKeybind.Key;
-		Settings["TOGGLE_DOUBLE_CLICK_ALT"] = ToggleDoubleClickKeybind.Alt;
-		Settings["TOGGLE_DOUBLE_CLICK_CTRL"] = ToggleDoubleClickKeybind.Ctrl;
-		Settings["TOGGLE_DOUBLE_CLICK_SHIFT"] = ToggleDoubleClickKeybind.Shift;
+		Settings["SET_DOUBLE_CLICK_KEY"] = SetDoubleClickKeybind.Key;
+		Settings["SET_DOUBLE_CLICK_ALT"] = SetDoubleClickKeybind.Alt;
+		Settings["SET_DOUBLE_CLICK_CTRL"] = SetDoubleClickKeybind.Ctrl;
+		Settings["SET_DOUBLE_CLICK_SHIFT"] = SetDoubleClickKeybind.Shift;
 
 		Mutex.lock();
 		{
@@ -156,9 +156,9 @@ namespace Settings
 		KeybindModal(keybindName, keybind);
 	}
 
-	void KeybindModal(std::string KeybindName, Keybind& keybind)
+	void KeybindModal(std::string keybindName, Keybind& keybind)
 	{
-		if (ImGui::BeginPopupModal(std::string("Set Keybind: " + KeybindName).c_str()))
+		if (ImGui::BeginPopupModal(std::string("Set Keybind: " + keybindName).c_str()))
 		{
 			bool closeModal = false;
 			isSettingKeybind = true;
@@ -204,42 +204,58 @@ namespace Settings
 		}
 	}
 
-	void ToggleDoubleClickModal()
+	void SetDoubleClickModal(std::string modalName)
 	{
-		if (ImGui::BeginPopupModal("Toggle Double-Click"))
+		if (ImGui::BeginPopupModal(modalName.c_str()))
 		{
 			bool closeModal = false;
-			isToggleDoubleClickActive = false;
-			toggleDoubleClickInterval = 0.5F;
 
-			if (ImGui::InputFloat("##ToggleDoubleClickInterval", &toggleDoubleClickInterval, 0.25F, 1.0F, "%.2f"))
+			if (!isSettingDoubleClick)
 			{
-				Save();
+				POINT CursorPos;
+				if (GetCursorPos(&CursorPos))
+				{
+					doubleClickPosX = CursorPos.x;
+					doubleClickPosY = CursorPos.y;
+				}
 			}
 
-			if (ImGui::Button("Unbind##DoubleClick"))
+			isSettingDoubleClick = true;
+			isDoubleClickActive = false;
+
+			ImGui::InputFloat(std::string("seconds##" + modalName).c_str(), &doubleClickInterval, 0.25F, 0.25F, "%.2f");
+
+			if (doubleClickInterval < 0.0F)
 			{
+				doubleClickInterval = 0.0F;
+			}
+
+			if (ImGui::Button(std::string("Start##" + modalName).c_str()))
+			{
+				isDoubleClickActive = true;
 				closeModal = true;
 			}
 
-			ImGui::SameLine(); ImGui::Spacing();
-			ImGui::SameLine(); ImGui::Spacing();
-			ImGui::SameLine(); ImGui::Spacing();
+			ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine(); ImGui::Spacing();
+			ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine(); ImGui::Spacing();
+			ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine(); ImGui::Spacing();
+			ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine(); ImGui::Spacing();
+			ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine(); ImGui::Spacing();
+			ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine(); ImGui::Spacing();
+			ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine(); ImGui::Spacing();
+			ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine(); ImGui::Spacing();
 
 			ImGui::SameLine();
-			if (ImGui::Button("Accept##DoubleClick"))
+			if (ImGui::Button(std::string("Cancel##" + modalName).c_str()))
 			{
-				closeModal = true;
-			}
-
-			ImGui::SameLine();
-			if (ImGui::Button("Cancel##DoubleClick"))
-			{
+				// set back to default value
+				doubleClickInterval = 0.75F;
 				closeModal = true;
 			}
 
 			if (closeModal)
 			{
+				isSettingDoubleClick = false;
 				ImGui::CloseCurrentPopup();
 			}
 
@@ -259,9 +275,12 @@ namespace Settings
 	Keybind DodgeJumpKeybind {};
 	Keybind MoveAboutFaceKeybind {};
 	Keybind HoldDoubleClickKeybind {};
-	Keybind ToggleDoubleClickKeybind {};
+	Keybind SetDoubleClickKeybind {};
 	
 	/* Toggle Double-Click */
-	bool isToggleDoubleClickActive = false;
-	float toggleDoubleClickInterval = 0.0F;
+	bool isSettingDoubleClick = false;
+	bool isDoubleClickActive = false;
+	float doubleClickInterval = 0.75F;
+	int doubleClickPosX = 0;
+	int doubleClickPosY = 0;
 } // namespace Settings
