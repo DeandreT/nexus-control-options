@@ -1,7 +1,9 @@
 #include <Windows.h>
 #include <filesystem>
+#include <future>
 #include <fstream>
 #include <mutex>
+#include <thread>
 #include <vector>
 
 #include "nexus/Nexus.h"
@@ -11,6 +13,7 @@
 
 #include "Shared.h"
 #include "Settings.h"
+#include "Tasks.h"
 
 void OnMumbleIdentityUpdated(void* aEventArgs);
 void AddonLoad(AddonAPI* aApi);
@@ -47,7 +50,7 @@ extern "C" __declspec(dllexport) AddonDefinition * GetAddonDef()
 	AddonDef.Name = "Extended Control Options";
 	AddonDef.Version.Major = 2024;
 	AddonDef.Version.Minor = 5;
-	AddonDef.Version.Build = 18;
+	AddonDef.Version.Build = 19;
 	AddonDef.Version.Revision = 1;
 	AddonDef.Author = "Jordan";
 	AddonDef.Description = "Provides additional controls and macros not available via the Control Options menu.";
@@ -101,18 +104,6 @@ void AddonUnload()
 	Settings::Save();
 }
 
-bool isDodgeJumpPressed = false;
-bool isDodgeJumpActive = false;
-
-bool isMoveAboutFacePressed = false;
-bool isMoveAboutFaceActive = false;
-
-bool isHoldDoubleClickPressed = false;
-
-bool isSetDoubleClickPressed = false;
-bool isSetDoubleClickReleased = true;
-auto doubleClickTimeout = std::chrono::system_clock::now().time_since_epoch();
-
 UINT AddonWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	// set window handle
@@ -146,146 +137,39 @@ UINT AddonWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	else
 	{
 		// check keybinds
-		isDodgeJumpPressed = Keybinds::isKeyDown(Settings::DodgeJumpKeybind);
-		isMoveAboutFacePressed = Keybinds::isKeyDown(Settings::MoveAboutFaceKeybind);
-		isHoldDoubleClickPressed = Keybinds::isKeyDown(Settings::HoldDoubleClickKeybind);
-		isSetDoubleClickPressed = Keybinds::isKeyDown(Settings::SetDoubleClickKeybind);
+		Tasks::isDodgeJumpDown = Keybinds::isKeyDown(Settings::DodgeJumpKeybind);
+		Tasks::isMoveAboutFaceDown = Keybinds::isKeyDown(Settings::MoveAboutFaceKeybind);
+		Tasks::isHoldDoubleClickDown = Keybinds::isKeyDown(Settings::HoldDoubleClickKeybind);
+		Tasks::isSetDoubleClickDown = Keybinds::isKeyDown(Settings::SetDoubleClickKeybind);
 	}
 
 	return uMsg;
 }
 
-
-
 void AddonRender()
 {
-	if (!NexusLink || !MumbleLink || !MumbleIdentity || MumbleLink->Context.IsMapOpen || !NexusLink->IsGameplay) { return; }
+	if (!NexusLink || !MumbleLink || !MumbleIdentity) { /* wait for AddonLoad */ return; }
+	if (MumbleLink->Context.IsMapOpen || !NexusLink->IsGameplay) { /* don't run macros */ return; }
 
 	if (!MumbleLink->Context.IsTextboxFocused)
 	{
-		/***********************************************************************
-		 * Dodge-Jump
-		 **********************************************************************/
-		if (isDodgeJumpPressed)
-		{
-			Keybinds::KeyDown(hGame, Settings::JumpKeybind);
-			Keybinds::KeyDown(hGame, Settings::DodgeKeybind);
+		std::future<void> taskDodgeJump = std::async(std::launch::async, Tasks::DodgeJump, hGame);
+		std::future<void> taskMoveAboutFace = std::async(std::launch::async, Tasks::MoveAboutFace, hGame);
+		std::future<void> taskHoldDoubleClick = std::async(std::launch::async, Tasks::HoldDoubleClick, hGame);
+		std::future<void> taskSetDoubleClick = std::async(std::launch::async, Tasks::SetDoubleClick, hGame);
 
-			isDodgeJumpActive = true;
-		}
-		else if (isDodgeJumpActive)
-		{
-			Keybinds::KeyUp(hGame, Settings::JumpKeybind);
-			Keybinds::KeyUp(hGame, Settings::DodgeKeybind);
-
-			isDodgeJumpActive = false;
-		}
-
-		/***********************************************************************
-		 * Move About Face
-		 **********************************************************************/
-		if (isMoveAboutFacePressed)
-		{
-			// hold camera
-			Keybinds::RMouseButtonUp(hGame);	// TODO: Does this actually help?
-			Keybinds::LMouseButtonDown(hGame);
-
-			// start moving forward
-			Keybinds::KeyDown(hGame, Settings::MoveForwardKeybind);
-
-			// turn character about face
-			if (!isMoveAboutFaceActive)
-			{
-				Keybinds::KeyDown(hGame, Settings::AboutFaceKeybind);
-				Keybinds::KeyUp(hGame, Settings::AboutFaceKeybind);
-			}
-
-			isMoveAboutFaceActive = true;
-		}
-		else if (isMoveAboutFaceActive)
-		{
-			// turn character about face
-			Keybinds::RMouseButtonDown(hGame);
-			Keybinds::RMouseButtonUp(hGame);
-
-			// stop moving forward
-			Keybinds::KeyUp(hGame, Settings::MoveForwardKeybind);
-
-			// release camera
-			Keybinds::LMouseButtonUp(hGame);
-
-			isMoveAboutFaceActive = false;
-		}
-		
-		/***********************************************************************
-		 * Hold Double-Click
-		 **********************************************************************/
-		if (isHoldDoubleClickPressed)
-		{
-			Keybinds::LMouseButtonDblClk(hGame);
-			Keybinds::LMouseButtonUp(hGame);
-		}
-
-		/***********************************************************************
-		 * Toggle Double-Click
-		 **********************************************************************/
-		if (isSetDoubleClickPressed || Settings::isSettingDoubleClick)
-		{
-			if (!Settings::isDoubleClickActive)
-			{
-				// activate double-click 
-				if (isSetDoubleClickReleased)
-				{
-					std::string modalName = "Set Double-Click";
-					ImGui::OpenPopup(modalName.c_str(), ImGuiPopupFlags_AnyPopupLevel);
-					Settings::SetDoubleClickModal(modalName);
-				}
-			}
-			else
-			{
-				// deactivate double-click
-				Settings::isDoubleClickActive = false;
-				doubleClickTimeout = std::chrono::system_clock::now().time_since_epoch() + std::chrono::milliseconds(1000);
-				isSetDoubleClickReleased = false;
-			}
-
-		}
-		else if (Settings::isDoubleClickActive)
-		{
-			if (std::chrono::system_clock::now().time_since_epoch() > doubleClickTimeout)
-			{
-				// get current cursor position
-				POINT CursorPos;
-				GetCursorPos(&CursorPos);
-
-				// set cursor position and double-click
-				SetCursorPos(Settings::doubleClickPosX, Settings::doubleClickPosY);
-				Keybinds::LMouseButtonDblClk(hGame);
-				Keybinds::LMouseButtonUp(hGame);
-
-				// restore previous cursor position
-				SetCursorPos(CursorPos.x, CursorPos.y);
-
-				// set timeout interval
-				auto doubleClickIntervalMs = std::chrono::milliseconds(static_cast<int>(Settings::doubleClickInterval * 1000));
-				doubleClickTimeout = std::chrono::system_clock::now().time_since_epoch() + doubleClickIntervalMs;
-			}
-		}
-		else
-		{
-			isSetDoubleClickReleased = true;
-		}
+		taskDodgeJump.wait();
+		taskMoveAboutFace.wait();
+		taskHoldDoubleClick.wait();
+		taskSetDoubleClick.wait();
 	}
 }
 
 void AddonOptions()
 {
-	static const ImGuiTreeNodeFlags IMGUI_COLLAPSING_DEFAULT_OPEN = 0x20;
-	static const ImGuiTableFlags IMGUI_TABLE_BORDERS_INNER_H = 0x80;
-
-	if (ImGui::CollapsingHeader("Movement", IMGUI_COLLAPSING_DEFAULT_OPEN))
+	if (ImGui::CollapsingHeader("Movement", ImGuiTreeNodeFlags_DefaultOpen))
 	{
-		ImGui::BeginTable("Movement", 3, IMGUI_TABLE_BORDERS_INNER_H);
+		ImGui::BeginTable("Movement", 3, ImGuiTableFlags_BordersInnerH);
 		Settings::KeybindButton("Move Forward", Settings::MoveForwardKeybind, "This should match your in-game keybind for \'Move Forward.\'\n");
 		Settings::KeybindButton("About Face", Settings::AboutFaceKeybind, "This should match your in-game keybind for \'About Face.\'\n");
 		Settings::KeybindButton("Move About Face", Settings::MoveAboutFaceKeybind, "Hold to move your character backwards without rotating the camera.\n");
@@ -295,18 +179,18 @@ void AddonOptions()
 		ImGui::EndTable();
 	}
 
-	if (ImGui::CollapsingHeader("Camera", IMGUI_COLLAPSING_DEFAULT_OPEN))
+	if (ImGui::CollapsingHeader("Camera", ImGuiTreeNodeFlags_DefaultOpen))
 	{
-		ImGui::BeginTable("Camera", 3, IMGUI_TABLE_BORDERS_INNER_H);
+		ImGui::BeginTable("Camera", 3, ImGuiTableFlags_BordersInnerH);
 		ImGui::TableNextRow(); ImGui::TableNextColumn(); ImGui::Text("Zoom In"); ImGui::TableNextColumn(); ImGui::TableNextColumn();
 		ImGui::TableNextRow(); ImGui::TableNextColumn(); ImGui::Text("Zoom Out"); ImGui::TableNextColumn(); ImGui::TableNextColumn();
 		ImGui::TableNextRow(); ImGui::TableNextColumn(); ImGui::Text("Auto-Adjust Zoom"); ImGui::TableNextColumn(); ImGui::TableNextColumn();
 		ImGui::EndTable();
 	}
 
-	if (ImGui::CollapsingHeader("Utilities", IMGUI_COLLAPSING_DEFAULT_OPEN))
+	if (ImGui::CollapsingHeader("Utilities", ImGuiTreeNodeFlags_DefaultOpen))
 	{
-		ImGui::BeginTable("Utilities", 3, IMGUI_TABLE_BORDERS_INNER_H);
+		ImGui::BeginTable("Utilities", 3, ImGuiTableFlags_BordersInnerH);
 		Settings::KeybindButton("Hold Double-Click", Settings::HoldDoubleClickKeybind, "Hold button to repeatedly double-click at your cursor's current position.\n");
 		Settings::KeybindButton("Set Double-Click", Settings::SetDoubleClickKeybind, "Set a timer to recurringly double-click at your cursor's current\n\
 position. Press this button again to end the double-click macro.");

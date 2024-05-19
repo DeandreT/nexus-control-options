@@ -107,6 +107,7 @@
     <ClInclude Include="src\nlohmann\json.hpp" />
     <ClInclude Include="src\Settings.h" />
     <ClInclude Include="src\Shared.h" />
+    <ClInclude Include="src\Tasks.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\entry.cpp" />
@@ -118,6 +119,7 @@
     <ClCompile Include="src\keybinds\Keybinds.cpp" />
     <ClCompile Include="src\Settings.cpp" />
     <ClCompile Include="src\Shared.cpp" />
+    <ClCompile Include="src\Tasks.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="src\imgui\LICENSE.txt" />
