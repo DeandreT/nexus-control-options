@@ -22,6 +22,7 @@ namespace Keybinds
 	void RMouseButtonDown(HWND hWnd);
 	void RMouseButtonDblClk(HWND hWnd);
 	void RMouseButtonUp(HWND hWnd);
+	void ScrollWheel(HWND hWnd, bool scrollDown, float wheelRotations);
 
 	// utilities
 	unsigned short GetKeyStateFromLParam(LPARAM lParam);

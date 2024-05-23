@@ -21,6 +21,7 @@ namespace Settings
 
 	void KeybindButton(std::string keybindName, Keybind& keybind, std::string keybindTooltip);
 	void KeybindModal(std::string keybindName, Keybind& keybind);
+	void SettingToggle(std::string settingName, bool& setting, std::string settingTooltip);
 
 	void SetDoubleClickModal(std::string modalName);
 
@@ -35,6 +36,7 @@ namespace Settings
 	extern Keybind AboutFaceKeybind;
 	extern Keybind DodgeJumpKeybind;
 	extern Keybind MoveAboutFaceKeybind;
+	extern bool AutoAdjustZoomEnabled;
 	extern Keybind HoldDoubleClickKeybind;
 	extern Keybind SetDoubleClickKeybind;
 

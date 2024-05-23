@@ -8,6 +8,7 @@ namespace Tasks {
 	void MoveAboutFace(HWND hWnd);
 	void HoldDoubleClick(HWND hWnd);
 	void SetDoubleClick(HWND hWnd);
+	void AutoAdjustZoom(HWND hWnd);
 
 	extern bool isDodgeJumpDown;
 	extern bool isMoveAboutFaceDown;

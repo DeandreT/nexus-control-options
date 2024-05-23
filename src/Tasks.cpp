@@ -150,4 +150,34 @@ namespace Tasks
 			isSetDoubleClickReleased = true;
 		}
 	}
+
+
+	/***************************************************************************
+	 * Auto-Adjust Zoom
+	 **************************************************************************/
+
+	bool isAutoAdjustZoomEnabled = false;
+	float autoAdjustZoomFOV = 0.0F;
+	int autoAdjustZoomIncrement = 0;
+
+	void AutoAdjustZoom(HWND hWnd)
+	{
+		if (Settings::AutoAdjustZoomEnabled)
+		{
+			if (autoAdjustZoomFOV < MumbleIdentity->FOV)
+			{
+				autoAdjustZoomIncrement += 3;
+			}
+
+			if (autoAdjustZoomIncrement)
+			{
+				Keybinds::ScrollWheel(hWnd, true, 0.5F);
+
+				autoAdjustZoomIncrement--;
+			}
+
+			autoAdjustZoomFOV = MumbleIdentity->FOV;
+		}
+	}
+
 } // namespace Tasks

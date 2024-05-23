@@ -72,6 +72,8 @@ namespace Settings
 			if (!Settings["MOVE_ABOUT_FACE_CTRL"].is_null()) { Settings["MOVE_ABOUT_FACE_CTRL"].get_to(MoveAboutFaceKeybind.Ctrl); }
 			if (!Settings["MOVE_ABOUT_FACE_SHIFT"].is_null()) { Settings["MOVE_ABOUT_FACE_SHIFT"].get_to(MoveAboutFaceKeybind.Shift); }
 
+			if (!Settings["AUTO_ADJUST_ZOOM_ENABLED"].is_null()) { Settings["AUTO_ADJUST_ZOOM_ENABLED"].get_to(AutoAdjustZoomEnabled); }
+
 			if (!Settings["HOLD_DOUBLE_CLICK_KEY"].is_null()) { Settings["HOLD_DOUBLE_CLICK_KEY"].get_to(HoldDoubleClickKeybind.Key); }
 			if (!Settings["HOLD_DOUBLE_CLICK_ALT"].is_null()) { Settings["HOLD_DOUBLE_CLICK_ALT"].get_to(HoldDoubleClickKeybind.Alt); }
 			if (!Settings["HOLD_DOUBLE_CLICK_CTRL"].is_null()) { Settings["HOLD_DOUBLE_CLICK_CTRL"].get_to(HoldDoubleClickKeybind.Ctrl); }
@@ -120,6 +122,8 @@ namespace Settings
 		Settings["MOVE_ABOUT_FACE_ALT"] = MoveAboutFaceKeybind.Alt;
 		Settings["MOVE_ABOUT_FACE_CTRL"] = MoveAboutFaceKeybind.Ctrl;
 		Settings["MOVE_ABOUT_FACE_SHIFT"] = MoveAboutFaceKeybind.Shift;
+
+		Settings["AUTO_ADJUST_ZOOM_ENABLED"] = AutoAdjustZoomEnabled;
 
 		Settings["HOLD_DOUBLE_CLICK_KEY"] = HoldDoubleClickKeybind.Key;
 		Settings["HOLD_DOUBLE_CLICK_ALT"] = HoldDoubleClickKeybind.Alt;
@@ -204,6 +208,20 @@ namespace Settings
 		}
 	}
 
+	void SettingToggle(std::string settingName, bool& setting, std::string settingTooltip)
+	{
+		ImGui::TableNextRow();
+		ImGui::TableNextColumn();
+		ImGui::PaddedText("Auto-Adjust Zoom", 6.0F, 4.0F);
+		ImGui::TableNextColumn();
+		if (ImGui::Checkbox(std::string("Enabled##" + settingName).c_str(), &setting))
+		{
+			Save();
+		}
+		ImGui::TooltipGeneric(settingTooltip.c_str());
+		ImGui::TableNextColumn();
+	}
+
 	void SetDoubleClickModal(std::string modalName)
 	{
 		if (ImGui::BeginPopupModal(modalName.c_str()))
@@ -267,13 +285,14 @@ namespace Settings
 	Keybind CurrentKeybind {};
 	bool isSettingKeybind = false;
 
-	/* Keybinds */
+	/* Keybinds & Settings */
 	Keybind MoveForwardKeybind {};
 	Keybind DodgeKeybind {};
 	Keybind JumpKeybind {};
 	Keybind AboutFaceKeybind {};
 	Keybind DodgeJumpKeybind {};
 	Keybind MoveAboutFaceKeybind {};
+	bool AutoAdjustZoomEnabled = false;
 	Keybind HoldDoubleClickKeybind {};
 	Keybind SetDoubleClickKeybind {};
 	

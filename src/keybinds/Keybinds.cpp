@@ -159,6 +159,18 @@ namespace Keybinds
 		}
 	}
 
+	void ScrollWheel(HWND hWnd, bool scrollDown, float wheelRotations)
+	{
+		POINT CursorPos;
+		if (GetCursorPos(&CursorPos))
+		{
+			WPARAM wParam = MAKEWPARAM((scrollDown ? -1 : 1), wheelRotations, 0);
+			LPARAM lParam = MAKELPARAM(CursorPos.x, CursorPos.y);
+
+			PostMessage(hWnd, WM_MOUSEWHEEL, wParam, lParam);
+		}
+	}
+
 	/***************************************************************************
 	 * Utilities
 	 **************************************************************************/

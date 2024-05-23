@@ -157,11 +157,13 @@ void AddonRender()
 		std::future<void> taskMoveAboutFace = std::async(std::launch::async, Tasks::MoveAboutFace, hGame);
 		std::future<void> taskHoldDoubleClick = std::async(std::launch::async, Tasks::HoldDoubleClick, hGame);
 		std::future<void> taskSetDoubleClick = std::async(std::launch::async, Tasks::SetDoubleClick, hGame);
+		std::future<void> taskAutoAdjustZoom = std::async(std::launch::async, Tasks::AutoAdjustZoom, hGame);
 
 		taskDodgeJump.wait();
 		taskMoveAboutFace.wait();
 		taskHoldDoubleClick.wait();
 		taskSetDoubleClick.wait();
+		taskAutoAdjustZoom.wait();
 	}
 }
 
@@ -182,9 +184,7 @@ void AddonOptions()
 	if (ImGui::CollapsingHeader("Camera", ImGuiTreeNodeFlags_DefaultOpen))
 	{
 		ImGui::BeginTable("Camera", 3, ImGuiTableFlags_BordersInnerH);
-		ImGui::TableNextRow(); ImGui::TableNextColumn(); ImGui::Text("Zoom In"); ImGui::TableNextColumn(); ImGui::TableNextColumn();
-		ImGui::TableNextRow(); ImGui::TableNextColumn(); ImGui::Text("Zoom Out"); ImGui::TableNextColumn(); ImGui::TableNextColumn();
-		ImGui::TableNextRow(); ImGui::TableNextColumn(); ImGui::Text("Auto-Adjust Zoom"); ImGui::TableNextColumn(); ImGui::TableNextColumn();
+		Settings::SettingToggle("Auto-Adjust Zoom", Settings::AutoAdjustZoomEnabled, "Automatically zoom your camera out when the FoV changes.");
 		ImGui::EndTable();
 	}
 
