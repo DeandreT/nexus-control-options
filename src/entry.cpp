@@ -14,6 +14,7 @@
 #include "Shared.h"
 #include "Settings.h"
 #include "Tasks.h"
+#include "Version.h"
 
 void OnMumbleIdentityUpdated(void* aEventArgs);
 void AddonLoad(AddonAPI* aApi);
@@ -48,12 +49,12 @@ extern "C" __declspec(dllexport) AddonDefinition * GetAddonDef()
 	AddonDef.Signature = 37;
 	AddonDef.APIVersion = NEXUS_API_VERSION;
 	AddonDef.Name = "Extended Control Options";
-	AddonDef.Version.Major = 2024;
-	AddonDef.Version.Minor = 5;
-	AddonDef.Version.Build = 19;
-	AddonDef.Version.Revision = 1;
+	AddonDef.Version.Major = V_MAJOR;
+	AddonDef.Version.Minor = V_MINOR;
+	AddonDef.Version.Build = V_BUILD;
+	AddonDef.Version.Revision = V_REVISION;
 	AddonDef.Author = "Jordan";
-	AddonDef.Description = "Provides additional controls and macros not available via the Control Options menu.";
+	AddonDef.Description = "Provides additional controls and macros not available via the in-game Control Options menu.";
 	AddonDef.Load = AddonLoad;
 	AddonDef.Unload = AddonUnload;
 	AddonDef.Flags = EAddonFlags_None;

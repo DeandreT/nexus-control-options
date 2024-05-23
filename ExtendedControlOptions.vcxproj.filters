@@ -97,5 +97,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />
+    <None Include="scripts\version.bat">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
