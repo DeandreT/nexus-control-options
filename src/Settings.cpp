@@ -86,6 +86,7 @@ namespace Settings
 		}
 		else
 		{
+			MoveForwardKeybind.Key = MapVirtualKey('W', MAPVK_VK_TO_VSC);
 			DodgeKeybind.Key = MapVirtualKey('V', MAPVK_VK_TO_VSC);
 			JumpKeybind.Key = MapVirtualKey(VK_SPACE, MAPVK_VK_TO_VSC);
 		}

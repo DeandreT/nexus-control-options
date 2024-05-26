@@ -7,108 +7,114 @@
 
 namespace Tasks
 {
-	/***************************************************************************
-	 * Dodge-Jump
-	 **************************************************************************/
-
 	bool isDodgeJumpDown = false;
-	bool isDodgeJumpActive = false;
+	bool isMoveAboutFaceDown = false;
+	bool isHoldDoubleClickDown = false;
+	bool isSetDoubleClickDown = false;
+
+	static bool isTimeoutElapsed(std::chrono::system_clock::duration timeout)
+	{
+		return (std::chrono::system_clock::now().time_since_epoch() > timeout);
+	}
 
 	void DodgeJump(HWND hWnd)
 	{
-		if (isDodgeJumpDown)
-		{
-			Keybinds::KeyDown(hWnd, Settings::JumpKeybind);
-			Keybinds::KeyDown(hWnd, Settings::DodgeKeybind);
+		static bool isActive = false;
 
-			isDodgeJumpActive = true;
-		}
-		else if (isDodgeJumpActive)
+		if (!MumbleLink->Context.IsTextboxFocused)
 		{
-			Keybinds::KeyUp(hWnd, Settings::JumpKeybind);
-			Keybinds::KeyUp(hWnd, Settings::DodgeKeybind);
+			if (isDodgeJumpDown)
+			{			
+				if (!isActive)
+				{
+					Keybinds::KeyDown(hWnd, Settings::JumpKeybind);
+					Keybinds::KeyDown(hWnd, Settings::DodgeKeybind);
 
-			isDodgeJumpActive = false;
+					isActive = true;
+				}
+			}
+			else if (isActive)
+			{
+				Keybinds::KeyUp(hWnd, Settings::JumpKeybind);
+				Keybinds::KeyUp(hWnd, Settings::DodgeKeybind);
+
+				isActive = false;
+			}
 		}
 	}
-
-
-	/***************************************************************************
-	 * Move About Face
-	 **************************************************************************/
-
-	bool isMoveAboutFaceDown = false;
-	bool isMoveAboutFaceActive = false;
 
 	void MoveAboutFace(HWND hWnd)
 	{
-		if (isMoveAboutFaceDown)
+		static bool isActive = false;
+		
+		if (!MumbleLink->Context.IsTextboxFocused)
 		{
-			// hold camera
-			Keybinds::RMouseButtonUp(hWnd);	// TODO: Does this actually help?
-			Keybinds::LMouseButtonDown(hWnd);
-
-			// start moving forward
-			Keybinds::KeyDown(hWnd, Settings::MoveForwardKeybind);
-
-			// turn character about face
-			if (!isMoveAboutFaceActive)
+			if (isMoveAboutFaceDown)
 			{
-				Keybinds::KeyDown(hWnd, Settings::AboutFaceKeybind);
-				Keybinds::KeyUp(hWnd, Settings::AboutFaceKeybind);
+				if (!isActive)
+				{
+					// hold camera
+					Keybinds::RMouseButtonUp(hWnd);	// TODO: Does this actually help?
+					Keybinds::LMouseButtonDown(hWnd);
+
+					// start moving forward
+					Keybinds::KeyDown(hWnd, Settings::MoveForwardKeybind);
+
+					// turn character about face
+					Keybinds::KeyDown(hWnd, Settings::AboutFaceKeybind);
+					Keybinds::KeyUp(hWnd, Settings::AboutFaceKeybind);
+
+					isActive = true;
+				}
 			}
+			else if (isActive)
+			{
+				// turn character about face
+				Keybinds::RMouseButtonDown(hWnd);
+				Keybinds::RMouseButtonUp(hWnd);
 
-			isMoveAboutFaceActive = true;
-		}
-		else if (isMoveAboutFaceActive)
-		{
-			// turn character about face
-			Keybinds::RMouseButtonDown(hWnd);
-			Keybinds::RMouseButtonUp(hWnd);
+				// stop moving forward
+				Keybinds::KeyUp(hWnd, Settings::MoveForwardKeybind);
 
-			// stop moving forward
-			Keybinds::KeyUp(hWnd, Settings::MoveForwardKeybind);
+				// release camera
+				Keybinds::LMouseButtonUp(hWnd);
 
-			// release camera
-			Keybinds::LMouseButtonUp(hWnd);
-
-			isMoveAboutFaceActive = false;
+				isActive = false;
+			}
 		}
 	}
-
-
-	/***************************************************************************
-	 * Hold Double-Click
-	 **************************************************************************/
-
-	bool isHoldDoubleClickDown = false;
 
 	void HoldDoubleClick(HWND hWnd)
 	{
-		if (isHoldDoubleClickDown)
+		static auto timeout = std::chrono::system_clock::now().time_since_epoch();
+		const auto internalCooldown = std::chrono::milliseconds(50);
+
+		if (!MumbleLink->Context.IsTextboxFocused)
 		{
-			Keybinds::LMouseButtonDblClk(hWnd);
-			Keybinds::LMouseButtonUp(hWnd);
+			if (isHoldDoubleClickDown)
+			{
+				if (isTimeoutElapsed(timeout))
+				{
+					Keybinds::LMouseButtonDblClk(hWnd);
+					Keybinds::LMouseButtonUp(hWnd);
+
+					timeout = std::chrono::system_clock::now().time_since_epoch() + internalCooldown;
+				}
+			}
 		}
 	}
 
-
-	/***************************************************************************
-	 * Set Double-Click
-	 **************************************************************************/
-
-	bool isSetDoubleClickDown = false;
-	bool isSetDoubleClickReleased = true;
-	auto doubleClickTimeout = std::chrono::system_clock::now().time_since_epoch();
-
 	void SetDoubleClick(HWND hWnd)
 	{
-		if (isSetDoubleClickDown || Settings::isSettingDoubleClick)
+		static auto timeout = std::chrono::system_clock::now().time_since_epoch();
+		const auto internalCooldown = std::chrono::milliseconds(1000);
+
+		if ((isSetDoubleClickDown || Settings::isSettingDoubleClick) && !MumbleLink->Context.IsTextboxFocused)
 		{
 			if (!Settings::isDoubleClickActive)
 			{
 				// activate double-click 
-				if (isSetDoubleClickReleased)
+				if (isTimeoutElapsed(timeout))
 				{
 					std::string modalName = "Set Double-Click";
 					ImGui::OpenPopup(modalName.c_str(), ImGuiPopupFlags_AnyPopupLevel);
@@ -119,20 +125,18 @@ namespace Tasks
 			{
 				// deactivate double-click
 				Settings::isDoubleClickActive = false;
-				doubleClickTimeout = std::chrono::system_clock::now().time_since_epoch() + std::chrono::milliseconds(1000);
-				isSetDoubleClickReleased = false;
+				timeout = std::chrono::system_clock::now().time_since_epoch() + internalCooldown;
 			}
-
 		}
 		else if (Settings::isDoubleClickActive)
 		{
-			if (std::chrono::system_clock::now().time_since_epoch() > doubleClickTimeout)
+			if (isTimeoutElapsed(timeout))
 			{
 				// get current cursor position
 				POINT CursorPos;
 				GetCursorPos(&CursorPos);
 
-				// set cursor position and double-click
+				// go to configured cursor position and double-click
 				SetCursorPos(Settings::doubleClickPosX, Settings::doubleClickPosY);
 				Keybinds::LMouseButtonDblClk(hWnd);
 				Keybinds::LMouseButtonUp(hWnd);
@@ -142,41 +146,30 @@ namespace Tasks
 
 				// set timeout interval
 				auto doubleClickIntervalMs = std::chrono::milliseconds(static_cast<int>(Settings::doubleClickInterval * 1000));
-				doubleClickTimeout = std::chrono::system_clock::now().time_since_epoch() + doubleClickIntervalMs;
+				timeout = std::chrono::system_clock::now().time_since_epoch() + doubleClickIntervalMs;
 			}
-		}
-		else
-		{
-			isSetDoubleClickReleased = true;
 		}
 	}
 
-
-	/***************************************************************************
-	 * Auto-Adjust Zoom
-	 **************************************************************************/
-
-	bool isAutoAdjustZoomEnabled = false;
-	float autoAdjustZoomFOV = 0.0F;
-	int autoAdjustZoomIncrement = 0;
-
 	void AutoAdjustZoom(HWND hWnd)
 	{
+		static float previousFOV = 0.0F;
+		static int zoomIncrements = 0;
+
 		if (Settings::AutoAdjustZoomEnabled)
 		{
-			if (autoAdjustZoomFOV < MumbleIdentity->FOV)
+			if (previousFOV < MumbleIdentity->FOV)
 			{
-				autoAdjustZoomIncrement += 3;
+				zoomIncrements += 3;
 			}
 
-			if (autoAdjustZoomIncrement)
+			if (zoomIncrements)
 			{
 				Keybinds::ScrollWheel(hWnd, true, 0.5F);
-
-				autoAdjustZoomIncrement--;
+				zoomIncrements--;
 			}
 
-			autoAdjustZoomFOV = MumbleIdentity->FOV;
+			previousFOV = MumbleIdentity->FOV;
 		}
 	}
 
