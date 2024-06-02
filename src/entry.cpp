@@ -90,6 +90,7 @@ void AddonLoad(AddonAPI* aApi)
 	std::filesystem::create_directory(APIDefs->GetAddonDirectory("ControlOptions"));
 	Settings::Load(APIDefs->GetAddonDirectory("ControlOptions/settings.json"));
 }
+
 void AddonUnload()
 {
 	APIDefs->DeregisterWndProc(AddonWndProc);

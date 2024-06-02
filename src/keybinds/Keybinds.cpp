@@ -45,6 +45,8 @@ namespace Keybinds
 
 	bool isKeyDown(Keybind& keybind)
 	{
+		if (keybind == Keybind{}) { return false; }
+
 		bool alt = keybind.Alt ? GetKeyState(VK_MENU) & 0x8000 : true;
 		bool shift = keybind.Shift ? GetKeyState(VK_SHIFT) & 0x8000 : true;
 		bool ctrl = keybind.Ctrl ? GetKeyState(VK_CONTROL) & 0x8000 : true;
@@ -59,42 +61,46 @@ namespace Keybinds
 
 	void KeyDown(HWND hWnd, Keybind& keybind)
 	{
+		if (keybind == Keybind{}) { return; }
+
 		if (keybind.Alt) {
-			PostMessage(hWnd, WM_SYSKEYDOWN, VK_MENU, GetLParam(VK_MENU, 1));
+			PostMessage(hWnd, WM_SYSKEYDOWN, VK_MENU, GetLParam(VK_MENU, false));
 			Sleep(5);
 		}
 		if (keybind.Shift) {
-			PostMessage(hWnd, WM_KEYDOWN, VK_SHIFT, GetLParam(VK_SHIFT, 1));
+			PostMessage(hWnd, WM_KEYDOWN, VK_SHIFT, GetLParam(VK_SHIFT, false));
 			Sleep(5);
 		}
 		if (keybind.Ctrl) {
-			PostMessage(hWnd, WM_KEYDOWN, VK_CONTROL, GetLParam(VK_SHIFT, 1));
+			PostMessage(hWnd, WM_KEYDOWN, VK_CONTROL, GetLParam(VK_CONTROL, false));
 			Sleep(5);
 		}
 		if (keybind.Key) {
 			auto vk = MapVirtualKey(keybind.Key, MAPVK_VSC_TO_VK);
-			PostMessage(hWnd, WM_KEYDOWN, vk, GetLParam(vk, 1));
+			PostMessage(hWnd, WM_KEYDOWN, vk, GetLParam(vk, false));
 			Sleep(5);
 		}
 	}
 
 	void KeyUp(HWND hWnd, Keybind& keybind)
 	{
+		if (keybind == Keybind{}) { return; }
+
 		if (keybind.Key) {
 			auto vk = MapVirtualKey(keybind.Key, MAPVK_VSC_TO_VK);
-			PostMessage(hWnd, WM_KEYUP, vk, GetLParam(vk, 0));
+			PostMessage(hWnd, WM_KEYUP, vk, GetLParam(vk, true));
 			Sleep(5);
 		}
 		if (keybind.Ctrl) {
-			PostMessage(hWnd, WM_KEYUP, VK_CONTROL, GetLParam(VK_CONTROL, 0));
+			PostMessage(hWnd, WM_KEYUP, VK_CONTROL, GetLParam(VK_CONTROL, true));
 			Sleep(5);
 		}
 		if (keybind.Shift) {
-			PostMessage(hWnd, WM_KEYUP, VK_SHIFT, GetLParam(VK_SHIFT, 0));
+			PostMessage(hWnd, WM_KEYUP, VK_SHIFT, GetLParam(VK_SHIFT, true));
 			Sleep(5);
 		}
 		if (keybind.Alt) {
-			PostMessage(hWnd, WM_SYSKEYUP, VK_MENU, GetLParam(VK_MENU, 0));
+			PostMessage(hWnd, WM_SYSKEYUP, VK_MENU, GetLParam(VK_MENU, true));
 			Sleep(5);
 		}
 	}
@@ -233,22 +239,19 @@ namespace Keybinds
 	}
 } // namespace Keybinds
 
-LPARAM GetLParam(uint32_t key, bool down)
+LPARAM GetLParam(uint32_t key, bool isKeyRelease)
 {
-	uint64_t lParam;
+	LPARAM lParam = 0;
+	auto scanCode = MapVirtualKeyA(key, MAPVK_VK_TO_VSC_EX);
+	bool isExtendedKey = false;
 
-	lParam = down ? 0 : 1; // transition state
-	lParam = lParam << 1;
-	lParam += down ? 0 : 1; // previous key state
-	lParam = lParam << 1;
-	lParam += 0; // context code
-	lParam = lParam << 1;
-	lParam = lParam << 4;
-	lParam = lParam << 1;
-	lParam = lParam << 8;
-	lParam += MapVirtualKeyA(key, MAPVK_VK_TO_VSC);
-	lParam = lParam << 16;
-	lParam += 1;
+	lParam |= (isKeyRelease ? 1 : 0) << 31; // Transition state
+	lParam |= (isKeyRelease ? 1 : 0) << 30; // Previous key state
+	lParam |= 0 << 29; // Context code
+	lParam |= 0 << 25; // Reserved
+	lParam |= (isExtendedKey ? 1 : 0) << 24; // Extended key
+	lParam |= scanCode << 16; // Scan code
+	lParam |= 1; // Repeat count
 
 	return lParam;
 }

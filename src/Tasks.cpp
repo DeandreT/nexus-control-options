@@ -54,7 +54,6 @@ namespace Tasks
 				if (!isActive)
 				{
 					// hold camera
-					Keybinds::RMouseButtonUp(hWnd);	// TODO: Does this actually help?
 					Keybinds::LMouseButtonDown(hWnd);
 
 					// start moving forward
