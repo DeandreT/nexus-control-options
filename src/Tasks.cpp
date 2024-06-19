@@ -20,26 +20,23 @@ namespace Tasks
 	void DodgeJump(HWND hWnd)
 	{
 		static bool isActive = false;
-
-		if (!MumbleLink->Context.IsTextboxFocused)
-		{
-			if (isDodgeJumpDown)
-			{			
-				if (!isActive)
-				{
-					Keybinds::KeyDown(hWnd, Settings::JumpKeybind);
-					Keybinds::KeyDown(hWnd, Settings::DodgeKeybind);
-
-					isActive = true;
-				}
-			}
-			else if (isActive)
+		
+		if (isDodgeJumpDown)
+		{			
+			if (!isActive)
 			{
-				Keybinds::KeyUp(hWnd, Settings::JumpKeybind);
-				Keybinds::KeyUp(hWnd, Settings::DodgeKeybind);
+				Keybinds::KeyDown(hWnd, Settings::JumpKeybind);
+				Keybinds::KeyDown(hWnd, Settings::DodgeKeybind);
 
-				isActive = false;
+				isActive = true;
 			}
+		}
+		else if (isActive)
+		{
+			Keybinds::KeyUp(hWnd, Settings::JumpKeybind);
+			Keybinds::KeyUp(hWnd, Settings::DodgeKeybind);
+
+			isActive = false;
 		}
 	}
 
@@ -47,39 +44,36 @@ namespace Tasks
 	{
 		static bool isActive = false;
 		
-		if (!MumbleLink->Context.IsTextboxFocused)
+		if (isMoveAboutFaceDown)
 		{
-			if (isMoveAboutFaceDown)
+			if (!isActive)
 			{
-				if (!isActive)
-				{
-					// hold camera
-					Keybinds::LMouseButtonDown(hWnd);
+				// hold camera
+				Keybinds::LMouseButtonDown(hWnd);
 
-					// start moving forward
-					Keybinds::KeyDown(hWnd, Settings::MoveForwardKeybind);
+				// start moving forward
+				Keybinds::KeyDown(hWnd, Settings::MoveForwardKeybind);
 
-					// turn character about face
-					Keybinds::KeyDown(hWnd, Settings::AboutFaceKeybind);
-					Keybinds::KeyUp(hWnd, Settings::AboutFaceKeybind);
-
-					isActive = true;
-				}
-			}
-			else if (isActive)
-			{
 				// turn character about face
-				Keybinds::RMouseButtonDown(hWnd);
-				Keybinds::RMouseButtonUp(hWnd);
+				Keybinds::KeyDown(hWnd, Settings::AboutFaceKeybind);
+				Keybinds::KeyUp(hWnd, Settings::AboutFaceKeybind);
 
-				// stop moving forward
-				Keybinds::KeyUp(hWnd, Settings::MoveForwardKeybind);
-
-				// release camera
-				Keybinds::LMouseButtonUp(hWnd);
-
-				isActive = false;
+				isActive = true;
 			}
+		}
+		else if (isActive)
+		{
+			// turn character about face
+			Keybinds::RMouseButtonDown(hWnd);
+			Keybinds::RMouseButtonUp(hWnd);
+
+			// stop moving forward
+			Keybinds::KeyUp(hWnd, Settings::MoveForwardKeybind);
+
+			// release camera
+			Keybinds::LMouseButtonUp(hWnd);
+
+			isActive = false;
 		}
 	}
 
@@ -88,17 +82,14 @@ namespace Tasks
 		static auto timeout = std::chrono::system_clock::now().time_since_epoch();
 		const auto internalCooldown = std::chrono::milliseconds(50);
 
-		if (!MumbleLink->Context.IsTextboxFocused)
+		if (isHoldDoubleClickDown)
 		{
-			if (isHoldDoubleClickDown)
+			if (isTimeoutElapsed(timeout))
 			{
-				if (isTimeoutElapsed(timeout))
-				{
-					Keybinds::LMouseButtonDblClk(hWnd);
-					Keybinds::LMouseButtonUp(hWnd);
+				Keybinds::LMouseButtonDblClk(hWnd);
+				Keybinds::LMouseButtonUp(hWnd);
 
-					timeout = std::chrono::system_clock::now().time_since_epoch() + internalCooldown;
-				}
+				timeout = std::chrono::system_clock::now().time_since_epoch() + internalCooldown;
 			}
 		}
 	}
@@ -108,7 +99,7 @@ namespace Tasks
 		static auto timeout = std::chrono::system_clock::now().time_since_epoch();
 		const auto internalCooldown = std::chrono::milliseconds(1000);
 
-		if ((isSetDoubleClickDown || Settings::isSettingDoubleClick) && !MumbleLink->Context.IsTextboxFocused)
+		if (isSetDoubleClickDown || Settings::isSettingDoubleClick)
 		{
 			if (!Settings::isDoubleClickActive)
 			{

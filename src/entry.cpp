@@ -108,6 +108,8 @@ void AddonUnload()
 
 UINT AddonWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	if (MumbleLink->Context.IsTextboxFocused || !MumbleLink->Context.IsGameFocused) { /* don't run macros */ return uMsg; }
+
 	// set window handle
 	hGame = hWnd;
 
