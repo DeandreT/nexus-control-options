@@ -21,22 +21,25 @@ namespace Tasks
 	{
 		static bool isActive = false;
 		
-		if (isDodgeJumpDown)
-		{			
-			if (!isActive)
-			{
-				Keybinds::KeyDown(hWnd, Settings::JumpKeybind);
-				Keybinds::KeyDown(hWnd, Settings::DodgeKeybind);
-
-				isActive = true;
-			}
-		}
-		else if (isActive)
+		if (Mumble::EMountIndex::None == MumbleLink->Context.MountIndex)
 		{
-			Keybinds::KeyUp(hWnd, Settings::JumpKeybind);
-			Keybinds::KeyUp(hWnd, Settings::DodgeKeybind);
+			if (isDodgeJumpDown)
+			{			
+				if (!isActive)
+				{
+					Keybinds::KeyDown(hWnd, Settings::JumpKeybind);
+					Keybinds::KeyDown(hWnd, Settings::DodgeKeybind);
 
-			isActive = false;
+					isActive = true;
+				}
+			}
+			else if (isActive)
+			{
+				Keybinds::KeyUp(hWnd, Settings::JumpKeybind);
+				Keybinds::KeyUp(hWnd, Settings::DodgeKeybind);
+
+				isActive = false;
+			}
 		}
 	}
 
