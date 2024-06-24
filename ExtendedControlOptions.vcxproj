@@ -93,6 +93,7 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="resource.h" />
     <ClInclude Include="src\imgui\imconfig.h" />
     <ClInclude Include="src\imgui\imgui.h" />
     <ClInclude Include="src\imgui\imgui_internal.h" />
@@ -103,6 +104,7 @@
     <ClInclude Include="src\mumble\Mumble.h" />
     <ClInclude Include="src\nexus\Nexus.h" />
     <ClInclude Include="src\nlohmann\json.hpp" />
+    <ClInclude Include="src\resource.h" />
     <ClInclude Include="src\Settings.h" />
     <ClInclude Include="src\Shared.h" />
     <ClInclude Include="src\Tasks.h" />
@@ -125,6 +127,12 @@
   <ItemGroup>
     <None Include="README.md" />
     <None Include="scripts\version.bat" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="DoubleClickIndicator.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="src\resources\RES_TEX_DBLCLK.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

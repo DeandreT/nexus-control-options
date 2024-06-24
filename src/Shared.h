@@ -5,6 +5,7 @@
 #include "mumble/Mumble.h"
 
 extern AddonAPI* APIDefs;
+extern HMODULE hSelf;
 
 extern Mumble::Data* MumbleLink;
 extern Mumble::Identity* MumbleIdentity;
