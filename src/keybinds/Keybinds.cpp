@@ -107,61 +107,79 @@ namespace Keybinds
 
 	void LMouseButtonDown(HWND hWnd)
 	{
-		POINT MousePosition;
-		if (GetCursorPos(&MousePosition))
+		POINT CursorPos;
+		if (GetCursorPos(&CursorPos))
 		{
-			PostMessage(hWnd, WM_LBUTTONDOWN, MK_LBUTTON, MAKELPARAM(MousePosition.x, MousePosition.y));
+			if (ScreenToClient(hWnd, &CursorPos))
+			{
+				PostMessage(hWnd, WM_LBUTTONDOWN, MK_LBUTTON, MAKELPARAM(CursorPos.x, CursorPos.y));
 			Sleep(5);
+			}
 		}
 	}
 
 	void LMouseButtonDblClk(HWND hWnd)
 	{
-		POINT MousePosition;
-		if (GetCursorPos(&MousePosition))
+		POINT CursorPos;
+		if (GetCursorPos(&CursorPos))
 		{
-			PostMessage(hWnd, WM_LBUTTONDBLCLK, MK_LBUTTON, MAKELPARAM(MousePosition.x, MousePosition.y));
+			if (ScreenToClient(hWnd, &CursorPos))
+			{
+				PostMessage(hWnd, WM_LBUTTONDBLCLK, MK_LBUTTON, MAKELPARAM(CursorPos.x, CursorPos.y));
 			Sleep(5);
+			}
 		}
 	}
 
 	void LMouseButtonUp(HWND hWnd)
 	{
-		POINT MousePosition;
-		if (GetCursorPos(&MousePosition))
+		POINT CursorPos;
+		if (GetCursorPos(&CursorPos))
 		{
-			PostMessage(hWnd, WM_LBUTTONUP, MK_LBUTTON, MAKELPARAM(MousePosition.x, MousePosition.y));
+			if (ScreenToClient(hWnd, &CursorPos))
+			{
+				PostMessage(hWnd, WM_LBUTTONUP, MK_LBUTTON, MAKELPARAM(CursorPos.x, CursorPos.y));
 			Sleep(5);
+			}
 		}
 	}
 
 	void RMouseButtonDown(HWND hWnd)
 	{
-		POINT MousePosition;
-		if (GetCursorPos(&MousePosition))
+		POINT CursorPos;
+		if (GetCursorPos(&CursorPos))
 		{
-			PostMessage(hWnd, WM_RBUTTONDOWN, MK_RBUTTON, MAKELPARAM(MousePosition.x, MousePosition.y));
+			if (ScreenToClient(hWnd, &CursorPos))
+			{
+				PostMessage(hWnd, WM_RBUTTONDOWN, MK_RBUTTON, MAKELPARAM(CursorPos.x, CursorPos.y));
 			Sleep(5);
+			}
 		}
 	}
 
 	void RMouseButtonDblClk(HWND hWnd)
 	{
-		POINT MousePosition;
-		if (GetCursorPos(&MousePosition))
+		POINT CursorPos;
+		if (GetCursorPos(&CursorPos))
 		{
-			PostMessage(hWnd, WM_RBUTTONDBLCLK, MK_RBUTTON, MAKELPARAM(MousePosition.x, MousePosition.y));
+			if (ScreenToClient(hWnd, &CursorPos))
+			{
+				PostMessage(hWnd, WM_RBUTTONDBLCLK, MK_RBUTTON, MAKELPARAM(CursorPos.x, CursorPos.y));
 			Sleep(5);
+			}
 		}
 	}
 
 	void RMouseButtonUp(HWND hWnd)
 	{
-		POINT MousePosition;
-		if (GetCursorPos(&MousePosition))
+		POINT CursorPos;
+		if (GetCursorPos(&CursorPos))
 		{
-			PostMessage(hWnd, WM_RBUTTONUP, MK_RBUTTON, MAKELPARAM(MousePosition.x, MousePosition.y));
+			if (ScreenToClient(hWnd, &CursorPos))
+			{
+				PostMessage(hWnd, WM_RBUTTONUP, MK_RBUTTON, MAKELPARAM(CursorPos.x, CursorPos.y));
 			Sleep(5);
+			}
 		}
 	}
 
@@ -170,10 +188,13 @@ namespace Keybinds
 		POINT CursorPos;
 		if (GetCursorPos(&CursorPos))
 		{
+			if (ScreenToClient(hWnd, &CursorPos))
+		{
 			WPARAM wParam = MAKEWPARAM((scrollDown ? -1 : 1), wheelRotations, 0);
 			LPARAM lParam = MAKELPARAM(CursorPos.x, CursorPos.y);
 
 			PostMessage(hWnd, WM_MOUSEWHEEL, wParam, lParam);
+			}
 		}
 	}
 

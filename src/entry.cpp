@@ -25,7 +25,7 @@ void AddonOptions();
 
 AddonDefinition AddonDef = {};
 HMODULE hSelf = nullptr;
-HWND hGame = nullptr;
+HWND hClient = nullptr;
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)
 {
@@ -111,7 +111,7 @@ UINT AddonWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	if (MumbleLink->Context.IsTextboxFocused || !MumbleLink->Context.IsGameFocused) { /* don't run macros */ return uMsg; }
 
 	// set window handle
-	hGame = hWnd;
+	hClient = hWnd;
 
 	if (Settings::isSettingKeybind)
 	{
@@ -155,11 +155,11 @@ void AddonRender()
 	if (!NexusLink || !MumbleLink || !MumbleIdentity) { /* wait for AddonLoad */ return; }
 	if (MumbleLink->Context.IsMapOpen || !NexusLink->IsGameplay) { /* don't run macros */ return; }
 
-	std::future<void> taskDodgeJump = std::async(std::launch::async, Tasks::DodgeJump, hGame);
-	std::future<void> taskMoveAboutFace = std::async(std::launch::async, Tasks::MoveAboutFace, hGame);
-	std::future<void> taskHoldDoubleClick = std::async(std::launch::async, Tasks::HoldDoubleClick, hGame);
-	std::future<void> taskSetDoubleClick = std::async(std::launch::async, Tasks::SetDoubleClick, hGame);
-	std::future<void> taskAutoAdjustZoom = std::async(std::launch::async, Tasks::AutoAdjustZoom, hGame);
+	std::future<void> taskDodgeJump = std::async(std::launch::async, Tasks::DodgeJump, hClient);
+	std::future<void> taskMoveAboutFace = std::async(std::launch::async, Tasks::MoveAboutFace, hClient);
+	std::future<void> taskHoldDoubleClick = std::async(std::launch::async, Tasks::HoldDoubleClick, hClient);
+	std::future<void> taskSetDoubleClick = std::async(std::launch::async, Tasks::SetDoubleClick, hClient);
+	std::future<void> taskAutoAdjustZoom = std::async(std::launch::async, Tasks::AutoAdjustZoom, hClient);
 
 	taskDodgeJump.wait();
 	taskMoveAboutFace.wait();

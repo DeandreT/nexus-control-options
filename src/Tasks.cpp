@@ -111,6 +111,8 @@ namespace Tasks
 				{
 					POINT CursorPos;
 					GetCursorPos(&CursorPos);
+					ScreenToClient(hWnd, &CursorPos);
+					
 					ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, { 0.f, 0.f });
 					ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 0.f, 0.f });
 					ImGui::SetWindowPos(ImVec2((CursorPos.x - (DoubleClickIndicator->Width / 2) - 4), (CursorPos.y - (DoubleClickIndicator->Height / 2) - 4)));
@@ -159,7 +161,7 @@ namespace Tasks
 				GetCursorPos(&CursorPos);
 
 				// go to configured cursor position and double-click
-				SetCursorPos(Settings::doubleClickPosX, Settings::doubleClickPosY);
+				SetCursorPos(Settings::doubleClickCursorPos.x, Settings::doubleClickCursorPos.y);
 				Keybinds::LMouseButtonDblClk(hWnd);
 				Keybinds::LMouseButtonUp(hWnd);
 
@@ -174,11 +176,15 @@ namespace Tasks
 			// render double-click indicator
 			if (nullptr != DoubleClickIndicator && nullptr != DoubleClickIndicator->Resource)
 			{
+				// get cursor position relative to screen
+				POINT CursorPos = Settings::doubleClickCursorPos;
+				ScreenToClient(hWnd, &CursorPos);
+
 				if (ImGui::Begin("Double-Click", (bool *)0, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoInputs))
 				{
 					ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, { 0.f, 0.f });
 					ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 0.f, 0.f });
-					ImGui::SetWindowPos(ImVec2((Settings::doubleClickPosX - (DoubleClickIndicator->Width / 2) - 4), (Settings::doubleClickPosY - (DoubleClickIndicator->Height / 2) - 4)));
+					ImGui::SetWindowPos(ImVec2((CursorPos.x - (DoubleClickIndicator->Width / 2) - 4), (CursorPos.y - (DoubleClickIndicator->Height / 2) - 4)));
 					ImGui::Image(DoubleClickIndicator->Resource, ImVec2(DoubleClickIndicator->Width, DoubleClickIndicator->Height));
 					ImGui::PopStyleVar(2);
 				}
@@ -186,7 +192,7 @@ namespace Tasks
 
 				if (ImGui::Begin("Timeout", (bool*)0, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoInputs))
 				{
-					ImGui::SetWindowPos(ImVec2((Settings::doubleClickPosX + (DoubleClickIndicator->Width / 2)), (Settings::doubleClickPosY - (DoubleClickIndicator->Height / 2))));
+					ImGui::SetWindowPos(ImVec2((CursorPos.x + (DoubleClickIndicator->Width / 2)), (CursorPos.y - (DoubleClickIndicator->Height / 2))));
 					auto countdown = std::chrono::duration<double>(timeout).count() - std::chrono::duration<double>(std::chrono::system_clock::now().time_since_epoch()).count();
 					std::stringstream ss;
 					ss << std::fixed << std::setprecision(2) << countdown << "s (press \'" << Keybinds::KeybindToString(Settings::SetDoubleClickKeybind) << "\' to stop)";

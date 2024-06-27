@@ -231,12 +231,7 @@ namespace Settings
 
 			if (!isSettingDoubleClick)
 			{
-				POINT CursorPos;
-				if (GetCursorPos(&CursorPos))
-				{
-					doubleClickPosX = CursorPos.x;
-					doubleClickPosY = CursorPos.y;
-				}
+				GetCursorPos(&doubleClickCursorPos);
 			}
 
 			isSettingDoubleClick = true;
@@ -301,6 +296,5 @@ namespace Settings
 	bool isSettingDoubleClick = false;
 	bool isDoubleClickActive = false;
 	float doubleClickInterval = 0.75F;
-	int doubleClickPosX = 0;
-	int doubleClickPosY = 0;
+	POINT doubleClickCursorPos = { 0 };
 } // namespace Settings

@@ -44,8 +44,7 @@ namespace Settings
 	extern bool isSettingDoubleClick;
 	extern bool isDoubleClickActive;
 	extern float doubleClickInterval;
-	extern int doubleClickPosX;
-	extern int doubleClickPosY;
+	extern POINT doubleClickCursorPos;
 } // namespace Settings
 
 namespace ImGui
