@@ -21,7 +21,7 @@ namespace Tasks
 
 	static bool isTimeoutElapsed(std::chrono::system_clock::duration timeout)
 	{
-		return (std::chrono::system_clock::now().time_since_epoch() > timeout);
+		return (timeout < std::chrono::system_clock::now().time_since_epoch());
 	}
 
 	void DodgeJump(HWND hWnd)
