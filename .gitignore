@@ -4,3 +4,4 @@ src/Version.h
 
 # visual studio
 .vs/
+.vscode/

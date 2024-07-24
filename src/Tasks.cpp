@@ -209,23 +209,35 @@ namespace Tasks
 
 	void AutoAdjustZoom(HWND hWnd)
 	{
-		static float previousFOV = 0.0F;
-		static int zoomIncrements = 0;
+		const auto delay = std::chrono::milliseconds(85);
+		static auto nextTick = std::chrono::system_clock::now().time_since_epoch();
+		static int zoomTicks = 0;
+		
+		static float previousFOV = 0;
+		static int previousMapID = 0;
 
 		if (Settings::AutoAdjustZoomEnabled)
 		{
 			if (previousFOV < MumbleIdentity->FOV)
 			{
-				zoomIncrements += 3;
+				zoomTicks += 3;
 			}
 
-			if (zoomIncrements)
+			if (previousMapID != MumbleIdentity->MapID)
 			{
-				Keybinds::ScrollWheel(hWnd, true, 0.5F);
-				zoomIncrements--;
+				zoomTicks += 12;
+			}
+
+			if (zoomTicks && isTimeoutElapsed(nextTick))
+			{
+				Keybinds::KeyDown(hWnd, Settings::ZoomOutKeybind);
+				Keybinds::KeyUp(hWnd, Settings::ZoomOutKeybind);
+				zoomTicks--;
+				nextTick = std::chrono::system_clock::now().time_since_epoch() + delay;
 			}
 
 			previousFOV = MumbleIdentity->FOV;
+			previousMapID = MumbleIdentity->MapID;
 		}
 	}
 

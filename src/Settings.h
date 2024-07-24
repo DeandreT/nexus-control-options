@@ -36,6 +36,7 @@ namespace Settings
 	extern Keybind AboutFaceKeybind;
 	extern Keybind DodgeJumpKeybind;
 	extern Keybind MoveAboutFaceKeybind;
+	extern Keybind ZoomOutKeybind;
 	extern bool AutoAdjustZoomEnabled;
 	extern Keybind HoldDoubleClickKeybind;
 	extern Keybind SetDoubleClickKeybind;

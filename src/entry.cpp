@@ -185,6 +185,7 @@ void AddonOptions()
 	if (ImGui::CollapsingHeader("Camera", ImGuiTreeNodeFlags_DefaultOpen))
 	{
 		ImGui::BeginTable("Camera", 3, ImGuiTableFlags_BordersInnerH);
+		Settings::KeybindButton("Zoom Out", Settings::ZoomOutKeybind, "This should match your in-game keybind for \'Zoom Out.\'\n");
 		Settings::SettingToggle("Auto-Adjust Zoom", Settings::AutoAdjustZoomEnabled, "Automatically zoom your camera out when the FoV changes.");
 		ImGui::EndTable();
 	}

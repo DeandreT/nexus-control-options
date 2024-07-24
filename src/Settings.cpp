@@ -18,9 +18,10 @@ namespace Settings
 		if (!std::filesystem::exists(SettingsPath))
 		{
 			// Default keybinds
-			MoveForwardKeybind.Key = MapVirtualKey('W', MAPVK_VK_TO_VSC);
-			DodgeKeybind.Key = MapVirtualKey('V', MAPVK_VK_TO_VSC);
-			JumpKeybind.Key = MapVirtualKey(VK_SPACE, MAPVK_VK_TO_VSC);
+			MoveForwardKeybind.Key = MapVirtualKeyA('W', MAPVK_VK_TO_VSC);
+			DodgeKeybind.Key = MapVirtualKeyA('V', MAPVK_VK_TO_VSC);
+			JumpKeybind.Key = MapVirtualKeyA(VK_SPACE, MAPVK_VK_TO_VSC);
+			ZoomOutKeybind.Key = MapVirtualKeyA(VK_NEXT, MAPVK_VK_TO_VSC);
 			return;
 		}
 
@@ -72,6 +73,11 @@ namespace Settings
 			if (!Settings["MOVE_ABOUT_FACE_CTRL"].is_null()) { Settings["MOVE_ABOUT_FACE_CTRL"].get_to(MoveAboutFaceKeybind.Ctrl); }
 			if (!Settings["MOVE_ABOUT_FACE_SHIFT"].is_null()) { Settings["MOVE_ABOUT_FACE_SHIFT"].get_to(MoveAboutFaceKeybind.Shift); }
 
+			if (!Settings["ZOOM_OUT_KEY"].is_null()) { Settings["ZOOM_OUT_KEY"].get_to(ZoomOutKeybind.Key); }
+			if (!Settings["ZOOM_OUT_ALT"].is_null()) { Settings["ZOOM_OUT_ALT"].get_to(ZoomOutKeybind.Alt); }
+			if (!Settings["ZOOM_OUT_CTRL"].is_null()) { Settings["ZOOM_OUT_CTRL"].get_to(ZoomOutKeybind.Ctrl); }
+			if (!Settings["ZOOM_OUT_SHIFT"].is_null()) { Settings["ZOOM_OUT_SHIFT"].get_to(ZoomOutKeybind.Shift); }
+
 			if (!Settings["AUTO_ADJUST_ZOOM_ENABLED"].is_null()) { Settings["AUTO_ADJUST_ZOOM_ENABLED"].get_to(AutoAdjustZoomEnabled); }
 
 			if (!Settings["HOLD_DOUBLE_CLICK_KEY"].is_null()) { Settings["HOLD_DOUBLE_CLICK_KEY"].get_to(HoldDoubleClickKeybind.Key); }
@@ -86,9 +92,10 @@ namespace Settings
 		}
 		else
 		{
-			MoveForwardKeybind.Key = MapVirtualKey('W', MAPVK_VK_TO_VSC);
-			DodgeKeybind.Key = MapVirtualKey('V', MAPVK_VK_TO_VSC);
-			JumpKeybind.Key = MapVirtualKey(VK_SPACE, MAPVK_VK_TO_VSC);
+			MoveForwardKeybind.Key = MapVirtualKeyA('W', MAPVK_VK_TO_VSC);
+			DodgeKeybind.Key = MapVirtualKeyA('V', MAPVK_VK_TO_VSC);
+			JumpKeybind.Key = MapVirtualKeyA(VK_SPACE, MAPVK_VK_TO_VSC);
+			ZoomOutKeybind.Key = MapVirtualKeyA(VK_NEXT, MAPVK_VK_TO_VSC);
 		}
     }
 
@@ -123,6 +130,11 @@ namespace Settings
 		Settings["MOVE_ABOUT_FACE_ALT"] = MoveAboutFaceKeybind.Alt;
 		Settings["MOVE_ABOUT_FACE_CTRL"] = MoveAboutFaceKeybind.Ctrl;
 		Settings["MOVE_ABOUT_FACE_SHIFT"] = MoveAboutFaceKeybind.Shift;
+
+		Settings["ZOOM_OUT_KEY"] = ZoomOutKeybind.Key;
+		Settings["ZOOM_OUT_ALT"] = ZoomOutKeybind.Alt;
+		Settings["ZOOM_OUT_CTRL"] = ZoomOutKeybind.Ctrl;
+		Settings["ZOOM_OUT_SHIFT"] = ZoomOutKeybind.Shift;
 
 		Settings["AUTO_ADJUST_ZOOM_ENABLED"] = AutoAdjustZoomEnabled;
 
@@ -288,6 +300,7 @@ namespace Settings
 	Keybind AboutFaceKeybind {};
 	Keybind DodgeJumpKeybind {};
 	Keybind MoveAboutFaceKeybind {};
+	Keybind ZoomOutKeybind {};
 	bool AutoAdjustZoomEnabled = false;
 	Keybind HoldDoubleClickKeybind {};
 	Keybind SetDoubleClickKeybind {};

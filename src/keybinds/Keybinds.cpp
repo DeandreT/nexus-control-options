@@ -175,11 +175,11 @@ namespace Keybinds
 		if (GetCursorPos(&CursorPos))
 		{
 			if (ScreenToClient(hWnd, &CursorPos))
-		{
-			WPARAM wParam = MAKEWPARAM((scrollDown ? -1 : 1), wheelRotations, 0);
-			LPARAM lParam = MAKELPARAM(CursorPos.x, CursorPos.y);
+			{
+				WPARAM wParam = MAKEWPARAM((scrollDown ? -1 : 1), wheelRotations, 0);
+				LPARAM lParam = MAKELPARAM(CursorPos.x, CursorPos.y);
 
-			PostMessage(hWnd, WM_MOUSEWHEEL, wParam, lParam);
+				PostMessage(hWnd, WM_MOUSEWHEEL, wParam, lParam);
 			}
 		}
 	}
