@@ -33,43 +33,13 @@ namespace Settings
 
 		if (!Settings.is_null())
 		{
-			if (!Settings["MOVE_ABOUT_FACE_KEY"].is_null()) { Settings["MOVE_ABOUT_FACE_KEY"].get_to(MoveAboutFaceKeybind.Key); }
-			if (!Settings["MOVE_ABOUT_FACE_ALT"].is_null()) { Settings["MOVE_ABOUT_FACE_ALT"].get_to(MoveAboutFaceKeybind.Alt); }
-			if (!Settings["MOVE_ABOUT_FACE_CTRL"].is_null()) { Settings["MOVE_ABOUT_FACE_CTRL"].get_to(MoveAboutFaceKeybind.Ctrl); }
-			if (!Settings["MOVE_ABOUT_FACE_SHIFT"].is_null()) { Settings["MOVE_ABOUT_FACE_SHIFT"].get_to(MoveAboutFaceKeybind.Shift); }
-
 			if (!Settings["AUTO_ADJUST_ZOOM_ENABLED"].is_null()) { Settings["AUTO_ADJUST_ZOOM_ENABLED"].get_to(AutoAdjustZoomEnabled); }
-
-			if (!Settings["HOLD_DOUBLE_CLICK_KEY"].is_null()) { Settings["HOLD_DOUBLE_CLICK_KEY"].get_to(HoldDoubleClickKeybind.Key); }
-			if (!Settings["HOLD_DOUBLE_CLICK_ALT"].is_null()) { Settings["HOLD_DOUBLE_CLICK_ALT"].get_to(HoldDoubleClickKeybind.Alt); }
-			if (!Settings["HOLD_DOUBLE_CLICK_CTRL"].is_null()) { Settings["HOLD_DOUBLE_CLICK_CTRL"].get_to(HoldDoubleClickKeybind.Ctrl); }
-			if (!Settings["HOLD_DOUBLE_CLICK_SHIFT"].is_null()) { Settings["HOLD_DOUBLE_CLICK_SHIFT"].get_to(HoldDoubleClickKeybind.Shift); }
-
-			if (!Settings["SET_DOUBLE_CLICK_KEY"].is_null()) { Settings["SET_DOUBLE_CLICK_KEY"].get_to(SetDoubleClickKeybind.Key); }
-			if (!Settings["SET_DOUBLE_CLICK_ALT"].is_null()) { Settings["SET_DOUBLE_CLICK_ALT"].get_to(SetDoubleClickKeybind.Alt); }
-			if (!Settings["SET_DOUBLE_CLICK_CTRL"].is_null()) { Settings["SET_DOUBLE_CLICK_CTRL"].get_to(SetDoubleClickKeybind.Ctrl); }
-			if (!Settings["SET_DOUBLE_CLICK_SHIFT"].is_null()) { Settings["SET_DOUBLE_CLICK_SHIFT"].get_to(SetDoubleClickKeybind.Shift); }
 		}
     }
 
     void Save()
     {
-		Settings["MOVE_ABOUT_FACE_KEY"] = MoveAboutFaceKeybind.Key;
-		Settings["MOVE_ABOUT_FACE_ALT"] = MoveAboutFaceKeybind.Alt;
-		Settings["MOVE_ABOUT_FACE_CTRL"] = MoveAboutFaceKeybind.Ctrl;
-		Settings["MOVE_ABOUT_FACE_SHIFT"] = MoveAboutFaceKeybind.Shift;
-
 		Settings["AUTO_ADJUST_ZOOM_ENABLED"] = AutoAdjustZoomEnabled;
-
-		Settings["HOLD_DOUBLE_CLICK_KEY"] = HoldDoubleClickKeybind.Key;
-		Settings["HOLD_DOUBLE_CLICK_ALT"] = HoldDoubleClickKeybind.Alt;
-		Settings["HOLD_DOUBLE_CLICK_CTRL"] = HoldDoubleClickKeybind.Ctrl;
-		Settings["HOLD_DOUBLE_CLICK_SHIFT"] = HoldDoubleClickKeybind.Shift;
-
-		Settings["SET_DOUBLE_CLICK_KEY"] = SetDoubleClickKeybind.Key;
-		Settings["SET_DOUBLE_CLICK_ALT"] = SetDoubleClickKeybind.Alt;
-		Settings["SET_DOUBLE_CLICK_CTRL"] = SetDoubleClickKeybind.Ctrl;
-		Settings["SET_DOUBLE_CLICK_SHIFT"] = SetDoubleClickKeybind.Shift;
 
 		Mutex.lock();
 		{
@@ -162,15 +132,17 @@ namespace Settings
 	{
 		if (ImGui::BeginPopupModal(modalName.c_str()))
 		{
+			static bool isSetCursorPos = false;
 			bool closeModal = false;
 
-			if (!isSettingDoubleClick)
+			if (!isSetCursorPos)
 			{
 				GetCursorPos(&doubleClickCursorPos);
+				isSetCursorPos = true;
 			}
 
-			isSettingDoubleClick = true;
 			isDoubleClickActive = false;
+			isDoubleClickPosFixed = false;
 
 			ImGui::InputFloat(std::string("seconds##" + modalName).c_str(), &doubleClickInterval, 0.25F, 0.25F, "%.2f");
 
@@ -182,6 +154,7 @@ namespace Settings
 			if (ImGui::Button(std::string("Start##" + modalName).c_str()))
 			{
 				isDoubleClickActive = true;
+				isDoubleClickPosFixed = true;
 				closeModal = true;
 			}
 
@@ -205,6 +178,7 @@ namespace Settings
 			if (closeModal)
 			{
 				isSettingDoubleClick = false;
+				isSetCursorPos = false;
 				ImGui::CloseCurrentPopup();
 			}
 
@@ -216,18 +190,13 @@ namespace Settings
 	Keybind CurrentKeybind {};
 	bool isSettingKeybind = false;
 
-	/* Keybinds & Settings */
-	Keybind MoveForwardKeybind {};
-	Keybind AboutFaceKeybind {};
-	Keybind MoveAboutFaceKeybind {};
-	Keybind ZoomOutKeybind {};
+	/* Settings */
 	bool AutoAdjustZoomEnabled = false;
-	Keybind HoldDoubleClickKeybind {};
-	Keybind SetDoubleClickKeybind {};
 	
 	/* Toggle Double-Click */
-	bool isSettingDoubleClick = false;
 	bool isDoubleClickActive = false;
+	bool isDoubleClickPosFixed = false;
+	bool isSettingDoubleClick = false;
 	float doubleClickInterval = 0.75F;
 	POINT doubleClickCursorPos = { 0 };
 } // namespace Settings

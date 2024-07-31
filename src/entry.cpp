@@ -86,6 +86,9 @@ void AddonLoad(AddonAPI* aApi)
 	APIDefs->Renderer.Register(ERenderType_OptionsRender, AddonOptions);
 
 	APIDefs->InputBinds.RegisterWithString("KB_CO_DODGE_JUMP", Tasks::DodgeJump, "(null)");
+	APIDefs->InputBinds.RegisterWithString("KB_CO_MOVE_ABOUT_FACE", Tasks::MoveAboutFace, "(null)");
+	APIDefs->InputBinds.RegisterWithString("KB_CO_HOLD_DOUBLE_CLICK", Tasks::HoldDoubleClick, "(null)");
+	APIDefs->InputBinds.RegisterWithString("KB_CO_SET_DOUBLE_CLICK", Tasks::SetDoubleClick, "(null)");
 
 	APIDefs->WndProc.Register(AddonWndProc);
 
@@ -98,6 +101,9 @@ void AddonUnload()
 	APIDefs->WndProc.Deregister(AddonWndProc);
 
 	APIDefs->InputBinds.Deregister("KB_CO_DODGE_JUMP");
+	APIDefs->InputBinds.Deregister("KB_CO_MOVE_ABOUT_FACE");
+	APIDefs->InputBinds.Deregister("KB_CO_HOLD_DOUBLE_CLICK");
+	APIDefs->InputBinds.Deregister("KB_CO_SET_DOUBLE_CLICK");
 
 	APIDefs->Renderer.Deregister(AddonOptions);
 	APIDefs->Renderer.Deregister(AddonRender);
@@ -142,13 +148,6 @@ UINT AddonWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			return 0;
 		}
 	}
-	else
-	{
-		// check keybinds
-		Tasks::isMoveAboutFaceDown = Keybinds::isKeyDown(Settings::MoveAboutFaceKeybind);
-		Tasks::isHoldDoubleClickDown = Keybinds::isKeyDown(Settings::HoldDoubleClickKeybind);
-		Tasks::isSetDoubleClickDown = Keybinds::isKeyDown(Settings::SetDoubleClickKeybind);
-	}
 
 	return uMsg;
 }
@@ -158,15 +157,11 @@ void AddonRender()
 	if (!NexusLink || !MumbleLink || !MumbleIdentity) { /* wait for AddonLoad */ return; }
 	if (MumbleLink->Context.IsMapOpen || !NexusLink->IsGameplay) { /* don't run macros */ return; }
 
-	std::future<void> taskMoveAboutFace = std::async(std::launch::async, Tasks::MoveAboutFace, hClient);
-	std::future<void> taskHoldDoubleClick = std::async(std::launch::async, Tasks::HoldDoubleClick, hClient);
-	std::future<void> taskSetDoubleClick = std::async(std::launch::async, Tasks::SetDoubleClick, hClient);
-	std::future<void> taskAutoAdjustZoom = std::async(std::launch::async, Tasks::AutoAdjustZoom, hClient);
+	std::future<void> taskAutoAdjustZoom = std::async(std::launch::async, Tasks::AutoAdjustZoom);
+	std::future<void> taskPerformDoubleClick = std::async(std::launch::async, Tasks::PerformDoubleClick);
 
-	taskMoveAboutFace.wait();
-	taskHoldDoubleClick.wait();
-	taskSetDoubleClick.wait();
 	taskAutoAdjustZoom.wait();
+	taskPerformDoubleClick.wait();
 }
 
 void AddonOptions()
@@ -174,19 +169,12 @@ void AddonOptions()
 	if (ImGui::CollapsingHeader("Movement", ImGuiTreeNodeFlags_DefaultOpen))
 	{
 		ImGui::BeginTable("Movement", 3, ImGuiTableFlags_BordersInnerH);
-		Settings::KeybindButton("Move Forward", Settings::MoveForwardKeybind, "This should match your in-game keybind for \'Move Forward.\'\n");
-		Settings::KeybindButton("About Face", Settings::AboutFaceKeybind, "This should match your in-game keybind for \'About Face.\'\n");
-		Settings::KeybindButton("Move About Face", Settings::MoveAboutFaceKeybind, "Hold to move your character backwards without rotating the camera.\n");
-		Settings::KeybindButton("Dodge", Settings::DodgeKeybind, "This should match your in-game keybind for \'Dodge.\'\n");
-		Settings::KeybindButton("Jump", Settings::JumpKeybind, "This should match your in-game keybind for \'Jump.\'\n");
-		Settings::KeybindButton("Dodge-Jump", Settings::DodgeJumpKeybind, "Perform the dodge and jump actions simultaneously.\n");
 		ImGui::EndTable();
 	}
 
 	if (ImGui::CollapsingHeader("Camera", ImGuiTreeNodeFlags_DefaultOpen))
 	{
 		ImGui::BeginTable("Camera", 3, ImGuiTableFlags_BordersInnerH);
-		Settings::KeybindButton("Zoom Out", Settings::ZoomOutKeybind, "This should match your in-game keybind for \'Zoom Out.\'\n");
 		Settings::SettingToggle("Auto-Adjust Zoom", Settings::AutoAdjustZoomEnabled, "Automatically zoom your camera out when the FoV changes.");
 		ImGui::EndTable();
 	}
@@ -194,9 +182,6 @@ void AddonOptions()
 	if (ImGui::CollapsingHeader("Utilities", ImGuiTreeNodeFlags_DefaultOpen))
 	{
 		ImGui::BeginTable("Utilities", 3, ImGuiTableFlags_BordersInnerH);
-		Settings::KeybindButton("Hold Double-Click", Settings::HoldDoubleClickKeybind, "Hold button to repeatedly double-click at your cursor's current position.\n");
-		Settings::KeybindButton("Set Double-Click", Settings::SetDoubleClickKeybind, "Set a timer to recurringly double-click at your cursor's current\n\
-position. Press this button again to end the double-click macro.");
 		ImGui::EndTable();
 	}
 }

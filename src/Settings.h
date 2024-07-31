@@ -29,21 +29,13 @@ namespace Settings
 	extern Keybind CurrentKeybind;
 	extern bool isSettingKeybind;
 
-	/* Keybinds */
-	extern Keybind MoveForwardKeybind;
-	extern Keybind DodgeKeybind;
-	extern Keybind JumpKeybind;
-	extern Keybind AboutFaceKeybind;
-	extern Keybind DodgeJumpKeybind;
-	extern Keybind MoveAboutFaceKeybind;
-	extern Keybind ZoomOutKeybind;
+	/* Settings */
 	extern bool AutoAdjustZoomEnabled;
-	extern Keybind HoldDoubleClickKeybind;
-	extern Keybind SetDoubleClickKeybind;
 
-	/* Set Double-Click */
-	extern bool isSettingDoubleClick;
+	/* Toggle Double-Click */
 	extern bool isDoubleClickActive;
+	extern bool isDoubleClickPosFixed;
+	extern bool isSettingDoubleClick;
 	extern float doubleClickInterval;
 	extern POINT doubleClickCursorPos;
 } // namespace Settings

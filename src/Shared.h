@@ -6,6 +6,7 @@
 
 extern AddonAPI* APIDefs;
 extern HMODULE hSelf;
+extern HWND hClient;
 
 extern Mumble::Data* MumbleLink;
 extern Mumble::Identity* MumbleIdentity;
