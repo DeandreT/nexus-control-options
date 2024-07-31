@@ -14,7 +14,6 @@ namespace Tasks
 	// initialise in AddonLoad
 	Texture* DoubleClickIndicator = nullptr;
 
-	bool isDodgeJumpDown = false;
 	bool isMoveAboutFaceDown = false;
 	bool isHoldDoubleClickDown = false;
 	bool isSetDoubleClickDown = false;
@@ -24,28 +23,16 @@ namespace Tasks
 		return (timeout < std::chrono::system_clock::now().time_since_epoch());
 	}
 
-	void DodgeJump(HWND hWnd)
+	void DodgeJump(const char* aIdentifier, bool aIsRelease)
 	{
-		static bool isActive = false;
-		
-		if (Mumble::EMountIndex::None == MumbleLink->Context.MountIndex)
+		if (MumbleLink->Context.IsTextboxFocused || !MumbleLink->Context.IsGameFocused) { /* don't run macros */ return; }
+
+		if (strcmp(aIdentifier, "KB_CO_DODGE_JUMP") == 0 && !aIsRelease)
 		{
-			if (isDodgeJumpDown)
-			{			
-				if (!isActive)
-				{
-					Keybinds::KeyDown(hWnd, Settings::JumpKeybind);
-					Keybinds::KeyDown(hWnd, Settings::DodgeKeybind);
-
-					isActive = true;
-				}
-			}
-			else if (isActive)
+			if (Mumble::EMountIndex::None == MumbleLink->Context.MountIndex)
 			{
-				Keybinds::KeyUp(hWnd, Settings::JumpKeybind);
-				Keybinds::KeyUp(hWnd, Settings::DodgeKeybind);
-
-				isActive = false;
+				APIDefs->GameBinds.InvokeAsync(EGameBinds_MoveJump, 0);
+				APIDefs->GameBinds.InvokeAsync(EGameBinds_MoveDodge, 0);
 			}
 		}
 	}
@@ -62,11 +49,10 @@ namespace Tasks
 				Keybinds::LMouseButtonDown(hWnd);
 
 				// start moving forward
-				Keybinds::KeyDown(hWnd, Settings::MoveForwardKeybind);
+				APIDefs->GameBinds.PressAsync(EGameBinds_MoveForward);
 
 				// turn character about face
-				Keybinds::KeyDown(hWnd, Settings::AboutFaceKeybind);
-				Keybinds::KeyUp(hWnd, Settings::AboutFaceKeybind);
+				APIDefs->GameBinds.InvokeAsync(EGameBinds_MoveAboutFace, 50);
 
 				isActive = true;
 			}
@@ -78,7 +64,7 @@ namespace Tasks
 			Keybinds::RMouseButtonUp(hWnd);
 
 			// stop moving forward
-			Keybinds::KeyUp(hWnd, Settings::MoveForwardKeybind);
+			APIDefs->GameBinds.ReleaseAsync(EGameBinds_MoveForward);
 
 			// release camera
 			Keybinds::LMouseButtonUp(hWnd);
@@ -123,7 +109,7 @@ namespace Tasks
 			}
 			else
 			{
-				DoubleClickIndicator = APIDefs->GetTextureOrCreateFromResource("RES_TEX_DBLCLK", RES_TEX_DBLCLK, hSelf);
+				DoubleClickIndicator = APIDefs->Textures.GetOrCreateFromResource("RES_TEX_DBLCLK", RES_TEX_DBLCLK, hSelf);
 			}
 		}
 	}
@@ -202,7 +188,7 @@ namespace Tasks
 			}
 			else
 			{
-				DoubleClickIndicator = APIDefs->GetTextureOrCreateFromResource("RES_TEX_DBLCLK", RES_TEX_DBLCLK, hSelf);
+				DoubleClickIndicator = APIDefs->Textures.GetOrCreateFromResource("RES_TEX_DBLCLK", RES_TEX_DBLCLK, hSelf);
 			}
 		}
 	}
@@ -230,9 +216,9 @@ namespace Tasks
 
 			if (zoomTicks && isTimeoutElapsed(nextTick))
 			{
-				Keybinds::KeyDown(hWnd, Settings::ZoomOutKeybind);
-				Keybinds::KeyUp(hWnd, Settings::ZoomOutKeybind);
+				APIDefs->GameBinds.InvokeAsync(EGameBinds_CameraZoomOut, 50);
 				zoomTicks--;
+
 				nextTick = std::chrono::system_clock::now().time_since_epoch() + delay;
 			}
 

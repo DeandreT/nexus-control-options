@@ -6,12 +6,11 @@
 namespace Tasks {
 	extern Texture* DoubleClickIndicator;
 
-	extern bool isDodgeJumpDown;
 	extern bool isMoveAboutFaceDown;
 	extern bool isHoldDoubleClickDown;
 	extern bool isSetDoubleClickDown;
 
-	void DodgeJump(HWND hWnd);
+	void DodgeJump(const char* aIdentifier, bool aIsRelease);
 	void MoveAboutFace(HWND hWnd);
 	void HoldDoubleClick(HWND hWnd);
 	void SetDoubleClick(HWND hWnd);

@@ -15,16 +15,6 @@ namespace Settings
     {
 		SettingsPath = aPath;
 
-		if (!std::filesystem::exists(SettingsPath))
-		{
-			// Default keybinds
-			MoveForwardKeybind.Key = MapVirtualKeyA('W', MAPVK_VK_TO_VSC);
-			DodgeKeybind.Key = MapVirtualKeyA('V', MAPVK_VK_TO_VSC);
-			JumpKeybind.Key = MapVirtualKeyA(VK_SPACE, MAPVK_VK_TO_VSC);
-			ZoomOutKeybind.Key = MapVirtualKeyA(VK_NEXT, MAPVK_VK_TO_VSC);
-			return;
-		}
-
 		Mutex.lock();
 		{
 			try
@@ -43,40 +33,10 @@ namespace Settings
 
 		if (!Settings.is_null())
 		{
-			if (!Settings["MOVE_FORWARD_KEY"].is_null()) { Settings["MOVE_FORWARD_KEY"].get_to(MoveForwardKeybind.Key); }
-			if (!Settings["MOVE_FORWARD_ALT"].is_null()) { Settings["MOVE_FORWARD_ALT"].get_to(MoveForwardKeybind.Alt); }
-			if (!Settings["MOVE_FORWARD_CTRL"].is_null()) { Settings["MOVE_FORWARD_CTRL"].get_to(MoveForwardKeybind.Ctrl); }
-			if (!Settings["MOVE_FORWARD_SHIFT"].is_null()) { Settings["MOVE_FORWARD_SHIFT"].get_to(MoveForwardKeybind.Shift); }
-			
-			if (!Settings["DODGE_KEY"].is_null()) { Settings["DODGE_KEY"].get_to(DodgeKeybind.Key); }
-			if (!Settings["DODGE_ALT"].is_null()) { Settings["DODGE_ALT"].get_to(DodgeKeybind.Alt); }
-			if (!Settings["DODGE_CTRL"].is_null()) { Settings["DODGE_CTRL"].get_to(DodgeKeybind.Ctrl); }
-			if (!Settings["DODGE_SHIFT"].is_null()) { Settings["DODGE_SHIFT"].get_to(DodgeKeybind.Shift); }
-
-			if (!Settings["JUMP_KEY"].is_null()) { Settings["JUMP_KEY"].get_to(JumpKeybind.Key); }
-			if (!Settings["JUMP_ALT"].is_null()) { Settings["JUMP_ALT"].get_to(JumpKeybind.Alt); }
-			if (!Settings["JUMP_CTRL"].is_null()) { Settings["JUMP_CTRL"].get_to(JumpKeybind.Ctrl); }
-			if (!Settings["JUMP_SHIFT"].is_null()) { Settings["JUMP_SHIFT"].get_to(JumpKeybind.Shift); }
-
-			if (!Settings["ABOUT_FACE_KEY"].is_null()) { Settings["ABOUT_FACE_KEY"].get_to(AboutFaceKeybind.Key); }
-			if (!Settings["ABOUT_FACE_ALT"].is_null()) { Settings["ABOUT_FACE_ALT"].get_to(AboutFaceKeybind.Alt); }
-			if (!Settings["ABOUT_FACE_CTRL"].is_null()) { Settings["ABOUT_FACE_CTRL"].get_to(AboutFaceKeybind.Ctrl); }
-			if (!Settings["ABOUT_FACE_SHIFT"].is_null()) { Settings["ABOUT_FACE_SHIFT"].get_to(AboutFaceKeybind.Shift); }
-
-			if (!Settings["DODGE_JUMP_KEY"].is_null()) { Settings["DODGE_JUMP_KEY"].get_to(DodgeJumpKeybind.Key); }
-			if (!Settings["DODGE_JUMP_ALT"].is_null()) { Settings["DODGE_JUMP_ALT"].get_to(DodgeJumpKeybind.Alt); }
-			if (!Settings["DODGE_JUMP_CTRL"].is_null()) { Settings["DODGE_JUMP_CTRL"].get_to(DodgeJumpKeybind.Ctrl); }
-			if (!Settings["DODGE_JUMP_SHIFT"].is_null()) { Settings["DODGE_JUMP_SHIFT"].get_to(DodgeJumpKeybind.Shift); }
-
 			if (!Settings["MOVE_ABOUT_FACE_KEY"].is_null()) { Settings["MOVE_ABOUT_FACE_KEY"].get_to(MoveAboutFaceKeybind.Key); }
 			if (!Settings["MOVE_ABOUT_FACE_ALT"].is_null()) { Settings["MOVE_ABOUT_FACE_ALT"].get_to(MoveAboutFaceKeybind.Alt); }
 			if (!Settings["MOVE_ABOUT_FACE_CTRL"].is_null()) { Settings["MOVE_ABOUT_FACE_CTRL"].get_to(MoveAboutFaceKeybind.Ctrl); }
 			if (!Settings["MOVE_ABOUT_FACE_SHIFT"].is_null()) { Settings["MOVE_ABOUT_FACE_SHIFT"].get_to(MoveAboutFaceKeybind.Shift); }
-
-			if (!Settings["ZOOM_OUT_KEY"].is_null()) { Settings["ZOOM_OUT_KEY"].get_to(ZoomOutKeybind.Key); }
-			if (!Settings["ZOOM_OUT_ALT"].is_null()) { Settings["ZOOM_OUT_ALT"].get_to(ZoomOutKeybind.Alt); }
-			if (!Settings["ZOOM_OUT_CTRL"].is_null()) { Settings["ZOOM_OUT_CTRL"].get_to(ZoomOutKeybind.Ctrl); }
-			if (!Settings["ZOOM_OUT_SHIFT"].is_null()) { Settings["ZOOM_OUT_SHIFT"].get_to(ZoomOutKeybind.Shift); }
 
 			if (!Settings["AUTO_ADJUST_ZOOM_ENABLED"].is_null()) { Settings["AUTO_ADJUST_ZOOM_ENABLED"].get_to(AutoAdjustZoomEnabled); }
 
@@ -90,51 +50,14 @@ namespace Settings
 			if (!Settings["SET_DOUBLE_CLICK_CTRL"].is_null()) { Settings["SET_DOUBLE_CLICK_CTRL"].get_to(SetDoubleClickKeybind.Ctrl); }
 			if (!Settings["SET_DOUBLE_CLICK_SHIFT"].is_null()) { Settings["SET_DOUBLE_CLICK_SHIFT"].get_to(SetDoubleClickKeybind.Shift); }
 		}
-		else
-		{
-			MoveForwardKeybind.Key = MapVirtualKeyA('W', MAPVK_VK_TO_VSC);
-			DodgeKeybind.Key = MapVirtualKeyA('V', MAPVK_VK_TO_VSC);
-			JumpKeybind.Key = MapVirtualKeyA(VK_SPACE, MAPVK_VK_TO_VSC);
-			ZoomOutKeybind.Key = MapVirtualKeyA(VK_NEXT, MAPVK_VK_TO_VSC);
-		}
     }
 
     void Save()
     {
-		Settings["MOVE_FORWARD_KEY"] = MoveForwardKeybind.Key;
-		Settings["MOVE_FORWARD_ALT"] = MoveForwardKeybind.Alt;
-		Settings["MOVE_FORWARD_CTRL"] = MoveForwardKeybind.Ctrl;
-		Settings["MOVE_FORWARD_SHIFT"] = MoveForwardKeybind.Shift;
-		
-		Settings["DODGE_KEY"] = DodgeKeybind.Key;
-		Settings["DODGE_ALT"] = DodgeKeybind.Alt;
-		Settings["DODGE_CTRL"] = DodgeKeybind.Ctrl;
-		Settings["DODGE_SHIFT"] = DodgeKeybind.Shift;
-
-		Settings["JUMP_KEY"] = JumpKeybind.Key;
-		Settings["JUMP_ALT"] = JumpKeybind.Alt;
-		Settings["JUMP_CTRL"] = JumpKeybind.Ctrl;
-		Settings["JUMP_SHIFT"] = JumpKeybind.Shift;
-
-		Settings["ABOUT_FACE_KEY"] = AboutFaceKeybind.Key;
-		Settings["ABOUT_FACE_ALT"] = AboutFaceKeybind.Alt;
-		Settings["ABOUT_FACE_CTRL"] = AboutFaceKeybind.Ctrl;
-		Settings["ABOUT_FACE_SHIFT"] = AboutFaceKeybind.Shift;
-
-		Settings["DODGE_JUMP_KEY"] = DodgeJumpKeybind.Key;
-		Settings["DODGE_JUMP_ALT"] = DodgeJumpKeybind.Alt;
-		Settings["DODGE_JUMP_CTRL"] = DodgeJumpKeybind.Ctrl;
-		Settings["DODGE_JUMP_SHIFT"] = DodgeJumpKeybind.Shift;
-
 		Settings["MOVE_ABOUT_FACE_KEY"] = MoveAboutFaceKeybind.Key;
 		Settings["MOVE_ABOUT_FACE_ALT"] = MoveAboutFaceKeybind.Alt;
 		Settings["MOVE_ABOUT_FACE_CTRL"] = MoveAboutFaceKeybind.Ctrl;
 		Settings["MOVE_ABOUT_FACE_SHIFT"] = MoveAboutFaceKeybind.Shift;
-
-		Settings["ZOOM_OUT_KEY"] = ZoomOutKeybind.Key;
-		Settings["ZOOM_OUT_ALT"] = ZoomOutKeybind.Alt;
-		Settings["ZOOM_OUT_CTRL"] = ZoomOutKeybind.Ctrl;
-		Settings["ZOOM_OUT_SHIFT"] = ZoomOutKeybind.Shift;
 
 		Settings["AUTO_ADJUST_ZOOM_ENABLED"] = AutoAdjustZoomEnabled;
 
@@ -295,10 +218,7 @@ namespace Settings
 
 	/* Keybinds & Settings */
 	Keybind MoveForwardKeybind {};
-	Keybind DodgeKeybind {};
-	Keybind JumpKeybind {};
 	Keybind AboutFaceKeybind {};
-	Keybind DodgeJumpKeybind {};
 	Keybind MoveAboutFaceKeybind {};
 	Keybind ZoomOutKeybind {};
 	bool AutoAdjustZoomEnabled = false;

@@ -77,28 +77,32 @@ void AddonLoad(AddonAPI* aApi)
 	ImGui::SetCurrentContext((ImGuiContext*)APIDefs->ImguiContext);
 	ImGui::SetAllocatorFunctions((void* (*)(size_t, void*))APIDefs->ImguiMalloc, (void(*)(void*, void*))APIDefs->ImguiFree); // on imgui 1.80+
 
-	NexusLink = (NexusLinkData*)APIDefs->GetResource("DL_NEXUS_LINK");
-	MumbleLink = (Mumble::Data*)APIDefs->GetResource("DL_MUMBLE_LINK");
+	NexusLink = (NexusLinkData*)APIDefs->DataLink.Get("DL_NEXUS_LINK");
+	MumbleLink = (Mumble::Data*)APIDefs->DataLink.Get("DL_MUMBLE_LINK");
 
-	APIDefs->SubscribeEvent("EV_MUMBLE_IDENTITY_UPDATED", OnMumbleIdentityUpdated);
+	APIDefs->Events.Subscribe("EV_MUMBLE_IDENTITY_UPDATED", OnMumbleIdentityUpdated);
 
-	APIDefs->RegisterRender(ERenderType_Render, AddonRender);
-	APIDefs->RegisterRender(ERenderType_OptionsRender, AddonOptions);
+	APIDefs->Renderer.Register(ERenderType_Render, AddonRender);
+	APIDefs->Renderer.Register(ERenderType_OptionsRender, AddonOptions);
 
-	APIDefs->RegisterWndProc(AddonWndProc);
+	APIDefs->InputBinds.RegisterWithString("KB_CO_DODGE_JUMP", Tasks::DodgeJump, "(null)");
 
-	std::filesystem::create_directory(APIDefs->GetAddonDirectory("ControlOptions"));
-	Settings::Load(APIDefs->GetAddonDirectory("ControlOptions/settings.json"));
+	APIDefs->WndProc.Register(AddonWndProc);
+
+	std::filesystem::create_directory(APIDefs->Paths.GetAddonDirectory("ControlOptions"));
+	Settings::Load(APIDefs->Paths.GetAddonDirectory("ControlOptions/settings.json"));
 }
 
 void AddonUnload()
 {
-	APIDefs->DeregisterWndProc(AddonWndProc);
+	APIDefs->WndProc.Deregister(AddonWndProc);
 
-	APIDefs->DeregisterRender(AddonOptions);
-	APIDefs->DeregisterRender(AddonRender);
+	APIDefs->InputBinds.Deregister("KB_CO_DODGE_JUMP");
 
-	APIDefs->UnsubscribeEvent("EV_MUMBLE_IDENTITY_UPDATED", OnMumbleIdentityUpdated);
+	APIDefs->Renderer.Deregister(AddonOptions);
+	APIDefs->Renderer.Deregister(AddonRender);
+
+	APIDefs->Events.Unsubscribe("EV_MUMBLE_IDENTITY_UPDATED", OnMumbleIdentityUpdated);
 
 	MumbleLink = nullptr;
 	NexusLink = nullptr;
@@ -141,7 +145,6 @@ UINT AddonWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	else
 	{
 		// check keybinds
-		Tasks::isDodgeJumpDown = Keybinds::isKeyDown(Settings::DodgeJumpKeybind);
 		Tasks::isMoveAboutFaceDown = Keybinds::isKeyDown(Settings::MoveAboutFaceKeybind);
 		Tasks::isHoldDoubleClickDown = Keybinds::isKeyDown(Settings::HoldDoubleClickKeybind);
 		Tasks::isSetDoubleClickDown = Keybinds::isKeyDown(Settings::SetDoubleClickKeybind);
@@ -155,13 +158,11 @@ void AddonRender()
 	if (!NexusLink || !MumbleLink || !MumbleIdentity) { /* wait for AddonLoad */ return; }
 	if (MumbleLink->Context.IsMapOpen || !NexusLink->IsGameplay) { /* don't run macros */ return; }
 
-	std::future<void> taskDodgeJump = std::async(std::launch::async, Tasks::DodgeJump, hClient);
 	std::future<void> taskMoveAboutFace = std::async(std::launch::async, Tasks::MoveAboutFace, hClient);
 	std::future<void> taskHoldDoubleClick = std::async(std::launch::async, Tasks::HoldDoubleClick, hClient);
 	std::future<void> taskSetDoubleClick = std::async(std::launch::async, Tasks::SetDoubleClick, hClient);
 	std::future<void> taskAutoAdjustZoom = std::async(std::launch::async, Tasks::AutoAdjustZoom, hClient);
 
-	taskDodgeJump.wait();
 	taskMoveAboutFace.wait();
 	taskHoldDoubleClick.wait();
 	taskSetDoubleClick.wait();
