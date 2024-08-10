@@ -56,7 +56,7 @@ namespace Settings
 	{
 		ImGui::TableNextRow();
 		ImGui::TableNextColumn();
-		ImGui::PaddedText(keybindName.c_str(), 6.0F, 4.0F);
+		ImGui::TextPadded(keybindName.c_str(), 6.0F, 4.0F);
 		ImGui::TableNextColumn();
 		if (ImGui::Button(std::string(Keybinds::KeybindToString(keybind) + "##" + keybindName).c_str()))
 		{
@@ -120,14 +120,13 @@ namespace Settings
 	{
 		ImGui::TableNextRow();
 		ImGui::TableNextColumn();
-		ImGui::PaddedText("Auto-Adjust Zoom", 6.0F, 4.0F);
+		ImGui::TextPadded(settingName.c_str(), 6.0F, 4.0F);
 		ImGui::TableNextColumn();
 		if (ImGui::Checkbox(std::string("Enabled##" + settingName).c_str(), &setting))
 		{
 			Save();
 		}
 		ImGui::TooltipGeneric(settingTooltip.c_str());
-		ImGui::TableNextColumn();
 	}
 
 	void ToggleDoubleClickModal(std::string modalName)

@@ -46,6 +46,11 @@ namespace Settings
 
 namespace ImGui
 {
+	static ImVec2 operator+(const ImVec2& lhs, const ImVec2& rhs)
+	{
+		return ImVec2(lhs.x + rhs.x, lhs.y + rhs.y);
+	}
+	
 	static bool Tooltip()
 	{
 		bool hovered = ImGui::IsItemHovered();
@@ -65,20 +70,29 @@ namespace ImGui
 		}
 	}
 
-	static ImVec2 operator+(const ImVec2& lhs, const ImVec2& rhs)
-	{ 
-		return ImVec2(lhs.x + rhs.x, lhs.y + rhs.y); 
-	}
-
-	static void PaddedText(const char* str, float paddingX, float paddingY)
+	static void TextPadded(const char* str, float paddingX, float paddingY)
 	{
 		ImVec2 textSize = ImGui::CalcTextSize(str);
 		ImVec2 cursorStart = ImGui::GetCursorPos();
-		ImGui::InvisibleButton("##PaddedText", textSize + ImVec2(paddingX * 2, paddingY * 2));
+		ImGui::InvisibleButton("##TextPadded", textSize + ImVec2(paddingX * 2, paddingY * 2));
 		ImVec2 cursorFinal = ImGui::GetCursorPos();
 		ImGui::SetCursorPos(cursorStart + ImVec2(paddingX, paddingY));
 		ImGui::Text(str);
-		//ImGui::SetCursorPos(cursorFinal);
+	}
+
+	static void TextWrappedPadded(const char* str, float paddingX, float paddingY)
+	{
+		ImVec2 textSize = ImGui::CalcTextSize(str);
+		ImVec2 cursorStart = ImGui::GetCursorPos();
+		ImGui::InvisibleButton("##TextWrappedPadded", textSize + ImVec2(paddingX * 2, paddingY * 2));
+		ImVec2 cursorFinal = ImGui::GetCursorPos();
+		ImGui::SetCursorPos(cursorStart + ImVec2(paddingX, paddingY));
+		ImGui::TextWrapped(str);
+	}
+
+	static bool SelectablePadded(const char* label, bool selected, float paddingX, float paddingY)
+	{
+		return ImGui::Selectable(label, selected);
 	}
 
 } // namespace ImGui
