@@ -132,7 +132,11 @@
     <ResourceCompile Include="DoubleClickIndicator.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="src\resources\RES_TEX_DBLCLK.png" />
+    <Image Include="src\resources\RES_TEX_DBLCLK_0.png" />
+    <Image Include="src\resources\RES_TEX_DBLCLK_1.png" />
+    <Image Include="src\resources\RES_TEX_DBLCLK_2.png" />
+    <Image Include="src\resources\RES_TEX_DBLCLK_3.png" />
+    <Image Include="src\resources\RES_TEX_DBLCLK_4.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

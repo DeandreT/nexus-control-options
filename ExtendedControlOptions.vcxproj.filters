@@ -113,7 +113,19 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="src\resources\RES_TEX_DBLCLK.png">
+    <Image Include="src\resources\RES_TEX_DBLCLK_0.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src\resources\RES_TEX_DBLCLK_1.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src\resources\RES_TEX_DBLCLK_2.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src\resources\RES_TEX_DBLCLK_3.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src\resources\RES_TEX_DBLCLK_4.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

@@ -130,7 +130,7 @@ namespace Settings
 		ImGui::TableNextColumn();
 	}
 
-	void SetDoubleClickModal(std::string modalName)
+	void ToggleDoubleClickModal(std::string modalName)
 	{
 		if (ImGui::BeginPopupModal(modalName.c_str()))
 		{
@@ -201,6 +201,8 @@ namespace Settings
 	bool isDoubleClickActive = false;
 	bool isDoubleClickPosFixed = false;
 	bool isSettingDoubleClick = false;
+	std::string doubleClickKeybindId = "(null)";
+	UINT doubleClickTexId = 0U;
 	float doubleClickInterval = 0.75F;
 	POINT doubleClickCursorPos = { 0 };
 } // namespace Settings

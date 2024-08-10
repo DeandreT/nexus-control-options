@@ -23,7 +23,7 @@ namespace Settings
 	void KeybindModal(std::string keybindName, Keybind& keybind);
 	void SettingToggle(std::string settingName, bool& setting, std::string settingTooltip);
 
-	void SetDoubleClickModal(std::string modalName);
+	void ToggleDoubleClickModal(std::string modalName);
 
 	/* Set Keybind */
 	extern Keybind CurrentKeybind;
@@ -38,6 +38,8 @@ namespace Settings
 	extern bool isDoubleClickActive;
 	extern bool isDoubleClickPosFixed;
 	extern bool isSettingDoubleClick;
+	extern std::string doubleClickKeybindId;
+	extern UINT doubleClickTexId;
 	extern float doubleClickInterval;
 	extern POINT doubleClickCursorPos;
 } // namespace Settings
