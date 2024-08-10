@@ -37,11 +37,9 @@ namespace Tasks
 
 	void DodgeJump(const char* aIdentifier, bool aIsRelease)
 	{
-		if (MumbleLink->Context.IsTextboxFocused || !MumbleLink->Context.IsGameFocused) { /* don't run macros */ return; }
-
-		if (strcmp(aIdentifier, "KB_CO_DODGE_JUMP") == 0 && !aIsRelease)
+		if ((strcmp(aIdentifier, "KB_CO_DODGE_JUMP") == 0) && !aIsRelease)
 		{
-			if (Mumble::EMountIndex::None == MumbleLink->Context.MountIndex)
+			if (isValidGameState() && (Mumble::EMountIndex::None == MumbleLink->Context.MountIndex))
 			{
 				APIDefs->GameBinds.InvokeAsync(EGameBinds_MoveJump, 0);
 				APIDefs->GameBinds.InvokeAsync(EGameBinds_MoveDodge, 0);
@@ -51,29 +49,20 @@ namespace Tasks
 
 	void MoveAboutFace(const char* aIdentifier, bool aIsRelease)
 	{
-		static bool isActive = false;
-
-		if (MumbleLink->Context.IsTextboxFocused || !MumbleLink->Context.IsGameFocused) { /* don't run macros */ return; }
-
 		if (strcmp(aIdentifier, "KB_CO_MOVE_ABOUT_FACE") == 0)
 		{
-			if (!aIsRelease)
+			if (!aIsRelease && isValidGameState())
 			{
-				if (!isActive)
-				{
-					// hold camera
-					Keybinds::LMouseButtonDown(hClient);
+				// hold camera
+				Keybinds::LMouseButtonDown(hClient);
 
-					// start moving forward
-					APIDefs->GameBinds.PressAsync(EGameBinds_MoveForward);
+				// start moving forward
+				APIDefs->GameBinds.PressAsync(EGameBinds_MoveForward);
 
-					// turn character about face
-					APIDefs->GameBinds.InvokeAsync(EGameBinds_MoveAboutFace, 0);
-
-					isActive = true;
-				}
+				// turn character about face
+				APIDefs->GameBinds.InvokeAsync(EGameBinds_MoveAboutFace, 0);
 			}
-			else if (isActive)
+			else if (aIsRelease || !isValidGameState())
 			{
 				// turn character about face
 				Keybinds::RMouseButtonDown(hClient);
@@ -84,8 +73,6 @@ namespace Tasks
 
 				// release camera
 				Keybinds::LMouseButtonUp(hClient);
-
-				isActive = false;
 			}
 		}
 	}
