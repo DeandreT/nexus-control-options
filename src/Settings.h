@@ -30,7 +30,9 @@ namespace Settings
 	extern bool isSettingKeybind;
 
 	/* Settings */
-	extern bool AutoAdjustZoomEnabled;
+	extern bool AutoAdjustZoomFOV;
+	extern bool AutoAdjustZoomMap;
+	extern bool ManualAdjustZoom;
 
 	/* Toggle Double-Click */
 	extern bool isDoubleClickActive;

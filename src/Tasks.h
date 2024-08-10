@@ -11,6 +11,7 @@ namespace Tasks {
 	void HoldDoubleClick(const char* aIdentifier, bool aIsRelease);
 	void SetDoubleClick(const char* aIdentifier, bool aIsRelease);
 	void PerformDoubleClick();
+	void ManualAdjustZoom(const char* aIdentifier, bool aIsRelease);
 	void AutoAdjustZoom();
 } // namespace Tasks
 

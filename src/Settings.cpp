@@ -33,13 +33,15 @@ namespace Settings
 
 		if (!Settings.is_null())
 		{
-			if (!Settings["AUTO_ADJUST_ZOOM_ENABLED"].is_null()) { Settings["AUTO_ADJUST_ZOOM_ENABLED"].get_to(AutoAdjustZoomEnabled); }
+			if (!Settings["AUTO_ADJUST_ZOOM_FOV"].is_null()) { Settings["AUTO_ADJUST_ZOOM_FOV"].get_to(AutoAdjustZoomFOV); }
+			if (!Settings["AUTO_ADJUST_ZOOM_MAP"].is_null()) { Settings["AUTO_ADJUST_ZOOM_MAP"].get_to(AutoAdjustZoomMap); }
 		}
     }
 
     void Save()
     {
-		Settings["AUTO_ADJUST_ZOOM_ENABLED"] = AutoAdjustZoomEnabled;
+		Settings["AUTO_ADJUST_ZOOM_FOV"] = AutoAdjustZoomFOV;
+		Settings["AUTO_ADJUST_ZOOM_MAP"] = AutoAdjustZoomMap;
 
 		Mutex.lock();
 		{
@@ -191,7 +193,9 @@ namespace Settings
 	bool isSettingKeybind = false;
 
 	/* Settings */
-	bool AutoAdjustZoomEnabled = false;
+	bool AutoAdjustZoomFOV = false;
+	bool AutoAdjustZoomMap = false;
+	bool ManualAdjustZoom = false;
 	
 	/* Toggle Double-Click */
 	bool isDoubleClickActive = false;

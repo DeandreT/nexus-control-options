@@ -185,41 +185,63 @@ namespace Tasks
 			// render double-click modal
 			std::string modalName = "Set Double-Click";
 			ImGui::OpenPopup(modalName.c_str(), ImGuiPopupFlags_AnyPopupLevel);
-			Settings::SetDoubleClickModal(modalName);
+
+	void ManualAdjustZoom(const char* aIdentifier, bool aIsRelease)
+	{
+		if (((strcmp(aIdentifier, "KB_CO_MANUAL_ADJUST_ZOOM") == 0) && !aIsRelease))
+		{
+			if (isValidGameState())
+			{
+				Settings::ManualAdjustZoom = true;
+			}
 		}
 	}
 
 	void AutoAdjustZoom()
 	{
-		const auto delay = std::chrono::milliseconds(85);
+		const auto delay = std::chrono::milliseconds(50);
 		static auto nextTick = std::chrono::system_clock::now().time_since_epoch();
 		static int zoomTicks = 0;
 		
 		static float previousFOV = 0;
 		static int previousMapID = 0;
 
-		if (Settings::AutoAdjustZoomEnabled)
+		if (Settings::AutoAdjustZoomFOV)
 		{
 			if (previousFOV < MumbleIdentity->FOV)
 			{
 				zoomTicks += 3;
 			}
 
+			previousFOV = MumbleIdentity->FOV;
+		}
+
+		if (Settings::AutoAdjustZoomMap)
+		{
 			if (previousMapID != MumbleIdentity->MapID)
 			{
 				zoomTicks += 12;
 			}
 
-			if (zoomTicks && isTimeoutElapsed(nextTick))
+			previousMapID = MumbleIdentity->MapID;
+		}
+
+		if (Settings::ManualAdjustZoom)
+		{
+			zoomTicks += 12;
+
+			Settings::ManualAdjustZoom = false;
+		}
+
+		if (zoomTicks && isTimeoutElapsed(nextTick))
+		{
+			if (isValidGameState())
 			{
 				APIDefs->GameBinds.InvokeAsync(EGameBinds_CameraZoomOut, 50);
 				zoomTicks--;
 
 				nextTick = std::chrono::system_clock::now().time_since_epoch() + delay;
 			}
-
-			previousFOV = MumbleIdentity->FOV;
-			previousMapID = MumbleIdentity->MapID;
 		}
 	}
 

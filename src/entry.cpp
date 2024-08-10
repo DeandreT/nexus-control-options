@@ -58,8 +58,6 @@ extern "C" __declspec(dllexport) AddonDefinition * GetAddonDef()
 	AddonDef.Load = AddonLoad;
 	AddonDef.Unload = AddonUnload;
 	AddonDef.Flags = EAddonFlags_None;
-
-	/* not necessary if hosted on Raidcore, but shown anyway for the example also useful as a backup resource */
 	AddonDef.Provider = EUpdateProvider_GitHub;
 	AddonDef.UpdateLink = "https://github.com/jordanrye/nexus-control-options";
 
@@ -88,7 +86,7 @@ void AddonLoad(AddonAPI* aApi)
 	APIDefs->InputBinds.RegisterWithString("KB_CO_DODGE_JUMP", Tasks::DodgeJump, "(null)");
 	APIDefs->InputBinds.RegisterWithString("KB_CO_MOVE_ABOUT_FACE", Tasks::MoveAboutFace, "(null)");
 	APIDefs->InputBinds.RegisterWithString("KB_CO_HOLD_DOUBLE_CLICK", Tasks::HoldDoubleClick, "(null)");
-	APIDefs->InputBinds.RegisterWithString("KB_CO_SET_DOUBLE_CLICK", Tasks::SetDoubleClick, "(null)");
+	APIDefs->InputBinds.RegisterWithString("KB_CO_MANUAL_ADJUST_ZOOM", Tasks::ManualAdjustZoom, "(null)");
 
 	APIDefs->WndProc.Register(AddonWndProc);
 
@@ -103,7 +101,7 @@ void AddonUnload()
 	APIDefs->InputBinds.Deregister("KB_CO_DODGE_JUMP");
 	APIDefs->InputBinds.Deregister("KB_CO_MOVE_ABOUT_FACE");
 	APIDefs->InputBinds.Deregister("KB_CO_HOLD_DOUBLE_CLICK");
-	APIDefs->InputBinds.Deregister("KB_CO_SET_DOUBLE_CLICK");
+	APIDefs->InputBinds.Deregister("KB_CO_MANUAL_ADJUST_ZOOM");
 
 	APIDefs->Renderer.Deregister(AddonOptions);
 	APIDefs->Renderer.Deregister(AddonRender);
