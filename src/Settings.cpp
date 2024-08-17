@@ -35,6 +35,7 @@ namespace Settings
 		{
 			if (!Settings["AUTO_ADJUST_ZOOM_FOV"].is_null()) { Settings["AUTO_ADJUST_ZOOM_FOV"].get_to(AutoAdjustZoomFOV); }
 			if (!Settings["AUTO_ADJUST_ZOOM_MAP"].is_null()) { Settings["AUTO_ADJUST_ZOOM_MAP"].get_to(AutoAdjustZoomMap); }
+			if (!Settings["DBLCLK_DEFAULT_INTERVAL"].is_null()) { Settings["DBLCLK_DEFAULT_INTERVAL"].get_to(DoubleClickDefaultInterval); }
 		}
     }
 
@@ -42,6 +43,7 @@ namespace Settings
     {
 		Settings["AUTO_ADJUST_ZOOM_FOV"] = AutoAdjustZoomFOV;
 		Settings["AUTO_ADJUST_ZOOM_MAP"] = AutoAdjustZoomMap;
+		Settings["DBLCLK_DEFAULT_INTERVAL"] = DoubleClickDefaultInterval;
 
 		Mutex.lock();
 		{
@@ -145,7 +147,7 @@ namespace Settings
 			isDoubleClickActive = false;
 			isDoubleClickPosFixed = false;
 
-			ImGui::InputFloat(std::string("seconds##" + modalName).c_str(), &doubleClickInterval, 0.25F, 0.25F, "%.2f");
+			ImGui::InputFloat(std::string("seconds##" + modalName).c_str(), &doubleClickInterval, 0.05F, 0.25F, "%.2f");
 
 			if (doubleClickInterval < 0.0F)
 			{
@@ -172,7 +174,7 @@ namespace Settings
 			if (ImGui::Button(std::string("Cancel##" + modalName).c_str()))
 			{
 				// set back to default value
-				doubleClickInterval = 0.75F;
+				doubleClickInterval = DoubleClickDefaultInterval;
 				closeModal = true;
 			}
 
@@ -194,14 +196,14 @@ namespace Settings
 	/* Settings */
 	bool AutoAdjustZoomFOV = false;
 	bool AutoAdjustZoomMap = false;
-	bool ManualAdjustZoom = false;
+	float DoubleClickDefaultInterval = 0.15F;
 	
 	/* Toggle Double-Click */
+	bool isSettingDoubleClick = false;
 	bool isDoubleClickActive = false;
 	bool isDoubleClickPosFixed = false;
-	bool isSettingDoubleClick = false;
+	float doubleClickInterval = 0.15F;
+	UINT doubleClickTexIt = 0U;
 	std::string doubleClickKeybindId = "(null)";
-	UINT doubleClickTexId = 0U;
-	float doubleClickInterval = 0.75F;
 	POINT doubleClickCursorPos = { 0 };
 } // namespace Settings

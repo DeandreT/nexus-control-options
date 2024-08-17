@@ -322,6 +322,15 @@ void AddonOptions()
 					ImGui::TextWrappedPadded("Toggle Double-Click", 0.0F, 4.0F);
 					ImGui::TooltipGeneric("Toggle macro to repeatedly double-click\nat a configured position and interval.");
 				}
+				{
+					ImGui::TableNextRow();
+					ImGui::TableNextColumn();
+					ImGui::TextWrappedPadded("Double-Click Default Interval", 0.0F, 4.0F);
+					ImGui::TooltipGeneric("Sets the default interval for 'Hold to\nDouble-Click' and 'Toggle Double-Click.'");
+					ImGui::PushItemWidth(150.0F);
+					ImGui::InputFloat("seconds##DoubleClickDefaultInterval", &Settings::DoubleClickDefaultInterval, 0.05F, 0.25F, "%.2f");
+					ImGui::PopItemWidth();
+				}
 				ImGui::EndTable();
 				break;
 			default:

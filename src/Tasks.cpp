@@ -11,7 +11,10 @@
 
 namespace Tasks
 {
-	// initialise in AddonLoad
+	/* State */
+	bool isManualAdjustZoom = false;
+
+	/* Textures */
 	Texture* TexDblClk_0 = nullptr;
 	Texture* TexDblClk_1 = nullptr;
 	Texture* TexDblClk_2 = nullptr;
@@ -39,10 +42,17 @@ namespace Tasks
 	{
 		if ((strcmp(aIdentifier, "KB_CO_DODGE_JUMP") == 0) && !aIsRelease)
 		{
-			if (isValidGameState() && (Mumble::EMountIndex::None == MumbleLink->Context.MountIndex))
+			if (isValidGameState())
 			{
-				APIDefs->GameBinds.InvokeAsync(EGameBinds_MoveJump, 0);
-				APIDefs->GameBinds.InvokeAsync(EGameBinds_MoveDodge, 0);
+				if (Mumble::EMountIndex::None == MumbleLink->Context.MountIndex)
+				{
+					APIDefs->GameBinds.InvokeAsync(EGameBinds_MoveJump, 0);
+					APIDefs->GameBinds.InvokeAsync(EGameBinds_MoveDodge, 0);
+				}
+				else
+				{
+					APIDefs->GameBinds.InvokeAsync(EGameBinds_MoveJump, 0);
+				}
 			}
 		}
 	}
@@ -87,12 +97,18 @@ namespace Tasks
 				{
 					Settings::isDoubleClickActive = true;
 					Settings::isDoubleClickPosFixed = false;
-					Settings::doubleClickInterval = 0.05F;
+					Settings::doubleClickInterval = Settings::DoubleClickDefaultInterval;
+					Settings::doubleClickTexIt = 0U;
 				}
 				else
 				{
 					Settings::isDoubleClickActive = false;
 				}
+			}
+			else
+			{
+				// manually deactivate double-click if game state becomes invalid
+				Settings::isDoubleClickActive = false;
 			}
 		}
 	}
@@ -108,15 +124,14 @@ namespace Tasks
 					// activate double-click modal
 					Settings::isSettingDoubleClick = true;
 					Settings::doubleClickKeybindId = std::string(aIdentifier);
-					Settings::doubleClickInterval = 0.75F;
+					Settings::doubleClickInterval = Settings::DoubleClickDefaultInterval;
+					Settings::doubleClickTexIt = 0U;
 				}
 				else
 				{
 					// deactivate double-click
 					Settings::isDoubleClickActive = false;
 				}
-
-				Settings::doubleClickTexId = 0U;
 			}
 		}
 	}
@@ -125,7 +140,7 @@ namespace Tasks
 	{
 		static auto timeout = std::chrono::system_clock::now().time_since_epoch();
 		static auto texTimeout = std::chrono::system_clock::now().time_since_epoch();
-		static bool doubleClickTexAnim = false;
+		static bool isDoubleClickTexAnim = false;
 
 		if (Settings::isDoubleClickActive)
 		{
@@ -159,7 +174,7 @@ namespace Tasks
 					timeout = std::chrono::system_clock::now().time_since_epoch() + doubleClickIntervalMs;
 
 					// set animation
-					doubleClickTexAnim = true;
+					isDoubleClickTexAnim = true;
 				}
 
 				// render indicators
@@ -181,25 +196,39 @@ namespace Tasks
 
 					// get curr texture
 					Texture* currTex = nullptr;
-					switch (Settings::doubleClickTexId)
+					auto nextTexIt = []() { 
+						if (isDoubleClickTexAnim && isTimeoutElapsed(texTimeout)) {
+							Settings::doubleClickTexIt++;
+							texTimeout = std::chrono::system_clock::now().time_since_epoch()
+								+ std::chrono::milliseconds(100);
+						}
+					};
+					switch (Settings::doubleClickTexIt)
 					{
 					case 0:
 						currTex = TexDblClk_0;
+						nextTexIt();
 						break;
 					case 1:
 						currTex = TexDblClk_1;
+						nextTexIt();
 						break;
 					case 2:
 						currTex = TexDblClk_2;
+						nextTexIt();
 						break;
 					case 3:
 						currTex = TexDblClk_3;
+						nextTexIt();
 						break;
 					case 4:
 						currTex = TexDblClk_4;
+						Settings::doubleClickTexIt = 0U;
+						isDoubleClickTexAnim = false;
 						break;
 					default:
 						// invalid texture id
+						Settings::doubleClickTexIt = 0U;
 						break;
 					}
 
@@ -215,23 +244,6 @@ namespace Tasks
 							ImGui::PopStyleVar(2);
 						}
 						ImGui::End();
-
-						// set next texture id
-						if (isTimeoutElapsed(texTimeout))
-						{
-							if ((Settings::doubleClickTexId < 4U) && (doubleClickTexAnim == true))
-							{
-								Settings::doubleClickTexId++;
-							}
-							else
-							{
-								Settings::doubleClickTexId = 0U;
-								doubleClickTexAnim = false;
-							}
-
-							static auto texIntervalMs = std::chrono::milliseconds(100);
-							texTimeout = std::chrono::system_clock::now().time_since_epoch() + texIntervalMs;
-						}
 
 						// render timeout indicator
 						if (Settings::isDoubleClickPosFixed)
@@ -250,6 +262,7 @@ namespace Tasks
 				}
 				else
 				{
+					// load textures
 					TexDblClk_0 = APIDefs->Textures.GetOrCreateFromResource("RES_TEX_DBLCLK_0", RES_TEX_DBLCLK_0, hSelf);
 					TexDblClk_1 = APIDefs->Textures.GetOrCreateFromResource("RES_TEX_DBLCLK_1", RES_TEX_DBLCLK_1, hSelf);
 					TexDblClk_2 = APIDefs->Textures.GetOrCreateFromResource("RES_TEX_DBLCLK_2", RES_TEX_DBLCLK_2, hSelf);
@@ -273,7 +286,7 @@ namespace Tasks
 		{
 			if (isValidGameState())
 			{
-				Settings::ManualAdjustZoom = true;
+				isManualAdjustZoom = true;
 			}
 		}
 	}
@@ -307,11 +320,11 @@ namespace Tasks
 			previousMapID = MumbleIdentity->MapID;
 		}
 
-		if (Settings::ManualAdjustZoom)
+		if (isManualAdjustZoom)
 		{
 			zoomTicks += 12;
 
-			Settings::ManualAdjustZoom = false;
+			isManualAdjustZoom = false;
 		}
 
 		if (zoomTicks && isTimeoutElapsed(nextTick))

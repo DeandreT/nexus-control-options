@@ -32,15 +32,15 @@ namespace Settings
 	/* Settings */
 	extern bool AutoAdjustZoomFOV;
 	extern bool AutoAdjustZoomMap;
-	extern bool ManualAdjustZoom;
+	extern float DoubleClickDefaultInterval;
 
 	/* Toggle Double-Click */
+	extern bool isSettingDoubleClick;
 	extern bool isDoubleClickActive;
 	extern bool isDoubleClickPosFixed;
-	extern bool isSettingDoubleClick;
-	extern std::string doubleClickKeybindId;
-	extern UINT doubleClickTexId;
 	extern float doubleClickInterval;
+	extern UINT doubleClickTexIt;
+	extern std::string doubleClickKeybindId;
 	extern POINT doubleClickCursorPos;
 } // namespace Settings
 
@@ -78,6 +78,7 @@ namespace ImGui
 		ImVec2 cursorFinal = ImGui::GetCursorPos();
 		ImGui::SetCursorPos(cursorStart + ImVec2(paddingX, paddingY));
 		ImGui::Text(str);
+		ImGui::SetCursorPos(cursorFinal);
 	}
 
 	static void TextWrappedPadded(const char* str, float paddingX, float paddingY)
@@ -88,11 +89,14 @@ namespace ImGui
 		ImVec2 cursorFinal = ImGui::GetCursorPos();
 		ImGui::SetCursorPos(cursorStart + ImVec2(paddingX, paddingY));
 		ImGui::TextWrapped(str);
+		ImGui::SetCursorPos(cursorFinal);
 	}
 
 	static bool SelectablePadded(const char* label, bool selected, float paddingX, float paddingY)
 	{
+		//ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, {paddingX, paddingY});
 		return ImGui::Selectable(label, selected);
+		//ImGui::PopStyleVar(1);
 	}
 
 } // namespace ImGui
