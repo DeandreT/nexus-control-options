@@ -193,9 +193,8 @@ void AddonOptions()
 			{
 				selected = ESettingsView_Utilities;
 			}
-		
-			ImGui::EndChild();
 		}
+		ImGui::EndChild();
 	}
 	ImGui::SameLine();
 
