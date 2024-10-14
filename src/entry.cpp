@@ -179,13 +179,15 @@ void AddonOptions()
 	// Navigation view
 	static int selected = 0;
 	{
-		ImGui::BeginChild("##", ImVec2(150, 0), true);
-		if (ImGui::SelectablePadded("Movement", (selected == ESettingsView_Movement), 4.0F, 4.0F))
-			selected = ESettingsView_Movement;
-		if (ImGui::Selectable("Camera", selected == ESettingsView_Camera))
-			selected = ESettingsView_Camera;
-		if (ImGui::Selectable("Utilities", selected == ESettingsView_Utilities))
-			selected = ESettingsView_Utilities;
+		if (ImGui::BeginChild("##", ImVec2(150, 0), true))
+		{
+			if (ImGui::SelectablePadded("Movement", (selected == ESettingsView_Movement), 4.0F, 4.0F))
+				selected = ESettingsView_Movement;
+			if (ImGui::Selectable("Camera", selected == ESettingsView_Camera))
+				selected = ESettingsView_Camera;
+			if (ImGui::Selectable("Utilities", selected == ESettingsView_Utilities))
+				selected = ESettingsView_Utilities;
+		}
 		ImGui::EndChild();
 	}
 	ImGui::SameLine();
@@ -193,148 +195,147 @@ void AddonOptions()
 	// Content view
 	{
 		ImGui::BeginGroup();
-		ImGui::BeginChild("ItemView", ImVec2(0, 0));
-		switch (selected)
+		if (ImGui::BeginChild("ItemView", ImVec2(0, 0)))
 		{
-			case ESettingsView_Movement:
-				ImGui::BeginTable("##Movement", 1, ImGuiTableFlags_BordersInnerH);
-				{
-					ImGui::TableNextRow();
-					ImGui::TableNextColumn();
-					bool isBoundMoveForward = APIDefs->GameBinds.IsBound(EGameBinds_MoveForward);
-					bool isBoundAboutFace = APIDefs->GameBinds.IsBound(EGameBinds_MoveAboutFace);
-					if (isBoundMoveForward && isBoundAboutFace)
+			switch (selected)
+			{
+				case ESettingsView_Movement:
+					if (ImGui::BeginTable("##Movement", 1, ImGuiTableFlags_BordersInnerH))
 					{
-						ImGui::TextWrappedPadded("Move About Face has relevant keybinds set.", 0.0F, 4.0F);
+						ImGui::TableNextRow();
+						ImGui::TableNextColumn();
+						bool isBoundMoveForward = APIDefs->GameBinds.IsBound(EGameBinds_MoveForward);
+						bool isBoundAboutFace = APIDefs->GameBinds.IsBound(EGameBinds_MoveAboutFace);
+						if (isBoundMoveForward && isBoundAboutFace)
+						{
+							ImGui::TextWrappedPadded("Move About Face has relevant keybinds set.", 0.0F, 4.0F);
+						}
+						else if (isBoundMoveForward)
+						{
+							ImGui::TextWrappedPadded("Move About Face requires 'About Face' keybind.", 0.0F, 4.0F);
+						}
+						else if (isBoundAboutFace)
+						{
+							ImGui::TextWrappedPadded("Move About Face requires 'Move Forward' keybind.", 0.0F, 4.0F);
+						}
+						else
+						{
+							ImGui::TextWrappedPadded("Move About Face requires 'Move Forward' and 'About Face' keybinds.", 0.0F, 4.0F);
+						}
+						ImGui::TooltipGeneric("Hold to move your character backwards\nwithout rotating the camera.");
+						ImGui::SameLine();
+						ImGui::Text("(?)");
+						ImGui::TooltipGeneric(helpStr.c_str());
+
+						ImGui::TableNextRow();
+						ImGui::TableNextColumn();
+						bool isBoundDodge = APIDefs->GameBinds.IsBound(EGameBinds_MoveDodge);
+						bool isBoundJump = APIDefs->GameBinds.IsBound(EGameBinds_MoveJump);
+						if (isBoundDodge && isBoundJump)
+						{
+							ImGui::TextWrappedPadded("Dodge-Jump has relevant keybinds set.", 0.0F, 4.0F);
+						}
+						else if (isBoundDodge)
+						{
+							ImGui::TextWrappedPadded("Dodge-Jump requires 'Jump' keybind", 0.0F, 4.0F);
+						}
+						else if (isBoundJump)
+						{
+							ImGui::TextWrappedPadded("Dodge-Jump requires 'Dodge' keybind.", 0.0F, 4.0F);
+						}
+						else
+						{
+							ImGui::TextWrappedPadded("Dodge-Jump requires 'Dodge' and 'Jump' keybinds.", 0.0F, 4.0F);
+						}
+						ImGui::TooltipGeneric("Perform the dodge and jump actions\nsimultaneously.");
+						ImGui::SameLine();
+						ImGui::Text("(?)");
+						ImGui::TooltipGeneric(helpStr.c_str());
+
+						ImGui::EndTable();
 					}
-					else if (isBoundMoveForward)
+					break;
+				case ESettingsView_Camera:
+					if (ImGui::BeginTable("##Camera", 1, ImGuiTableFlags_BordersInnerH))
 					{
-						ImGui::TextWrappedPadded("Move About Face requires 'About Face' keybind.", 0.0F, 4.0F);
+						ImGui::TableNextRow();
+						ImGui::TableNextColumn();
+						bool isBoundZoomOut = APIDefs->GameBinds.IsBound(EGameBinds_CameraZoomOut);
+						if (isBoundZoomOut)
+						{
+							ImGui::TextWrappedPadded("Manually Adjust Zoom has relevant keybinds set.", 0.0F, 4.0F);
+						}
+						else
+						{
+							ImGui::TextWrappedPadded("Manually Adjust Zoom requires 'Zoom Out' keybind.", 0.0F, 4.0F);
+						}
+						ImGui::TooltipGeneric("Manually zoom your camera out to the\nmaximum distance.");
+						ImGui::SameLine();
+						ImGui::Text("(?)");
+						ImGui::TooltipGeneric(helpStr.c_str());
+
+						ImGui::TableNextRow();
+						ImGui::TableNextColumn();
+
+						if (isBoundZoomOut)
+						{
+							ImGui::TextWrappedPadded("Auto-Adjust Zoom has relevant keybinds set.", 0.0F, 4.0F);
+						}
+						else
+						{
+							ImGui::TextWrappedPadded("Auto-Adjust Zoom requires 'Zoom Out' keybind.", 0.0F, 4.0F);
+						}
+						ImGui::TooltipGeneric("Automatically zoom out your camera out\nwhen the field-of-view changes or you\nchange map.");
+						ImGui::SameLine();
+						ImGui::Text("(?)");
+						ImGui::TooltipGeneric(helpStr.c_str());
+
+						ImGui::TableNextRow();
+						ImGui::TableNextColumn();
+						if (ImGui::Checkbox("Auto-Adjust Zoom (FoV Change)", &Settings::AutoAdjustZoomFOV))
+						{
+							Settings::Save();
+						}
+						ImGui::TooltipGeneric("Automatically zoom out your camera when\nthe field-of-view changes.");
+
+						ImGui::TableNextRow();
+						ImGui::TableNextColumn();
+						if (ImGui::Checkbox("Auto-Adjust Zoom (Map Change)", &Settings::AutoAdjustZoomMap))
+						{
+							Settings::Save();
+						}
+						ImGui::TooltipGeneric("Automatically zoom out your camera when\nyou change map.");
+
+						ImGui::EndTable();
 					}
-					else if (isBoundAboutFace)
+					break;
+				case ESettingsView_Utilities:
+					if (ImGui::BeginTable("##Utilities", 1, ImGuiTableFlags_BordersInnerH))
 					{
-						ImGui::TextWrappedPadded("Move About Face requires 'Move Forward' keybind.", 0.0F, 4.0F);
+						ImGui::TableNextRow();
+						ImGui::TableNextColumn();
+						ImGui::TextWrappedPadded("Hold to Double-Click", 0.0F, 4.0F);
+						ImGui::TooltipGeneric("Hold keybind to repeatedly double-click\nat your cursor's current position.");
+
+						ImGui::TableNextRow();
+						ImGui::TableNextColumn();
+						ImGui::TextWrappedPadded("Toggle Double-Click", 0.0F, 4.0F);
+						ImGui::TooltipGeneric("Toggle macro to repeatedly double-click\nat a configured position and interval.");
+
+						ImGui::TableNextRow();
+						ImGui::TableNextColumn();
+						ImGui::TextWrappedPadded("Double-Click Default Interval", 0.0F, 4.0F);
+						ImGui::TooltipGeneric("Sets the default interval for 'Hold to\nDouble-Click' and 'Toggle Double-Click.'");
+						ImGui::PushItemWidth(150.0F);
+						ImGui::InputFloat("seconds##DoubleClickDefaultInterval", &Settings::DoubleClickDefaultInterval, 0.05F, 0.25F, "%.2f");
+						ImGui::PopItemWidth();
+
+						ImGui::EndTable();
 					}
-					else
-					{
-						ImGui::TextWrappedPadded("Move About Face requires 'Move Forward' and 'About Face' keybinds.", 0.0F, 4.0F);
-					}
-					ImGui::TooltipGeneric("Hold to move your character backwards\nwithout rotating the camera.");
-					ImGui::SameLine();
-					ImGui::Text("(?)");
-					ImGui::TooltipGeneric(helpStr.c_str());
-				}
-				{
-					ImGui::TableNextRow();
-					ImGui::TableNextColumn();
-					bool isBoundDodge = APIDefs->GameBinds.IsBound(EGameBinds_MoveDodge);
-					bool isBoundJump = APIDefs->GameBinds.IsBound(EGameBinds_MoveJump);
-					if (isBoundDodge && isBoundJump)
-					{
-						ImGui::TextWrappedPadded("Dodge-Jump has relevant keybinds set.", 0.0F, 4.0F);
-					}
-					else if (isBoundDodge)
-					{
-						ImGui::TextWrappedPadded("Dodge-Jump requires 'Jump' keybind", 0.0F, 4.0F);
-					}
-					else if (isBoundJump)
-					{
-						ImGui::TextWrappedPadded("Dodge-Jump requires 'Dodge' keybind.", 0.0F, 4.0F);
-					}
-					else
-					{
-						ImGui::TextWrappedPadded("Dodge-Jump requires 'Dodge' and 'Jump' keybinds.", 0.0F, 4.0F);
-					}
-					ImGui::TooltipGeneric("Perform the dodge and jump actions\nsimultaneously.");
-					ImGui::SameLine();
-					ImGui::Text("(?)");
-					ImGui::TooltipGeneric(helpStr.c_str());
-				}
-				ImGui::EndTable();
-				break;
-			case ESettingsView_Camera:
-				ImGui::BeginTable("##Camera", 1, ImGuiTableFlags_BordersInnerH);
-				{
-					ImGui::TableNextRow();
-					ImGui::TableNextColumn();
-					bool isBoundZoomOut = APIDefs->GameBinds.IsBound(EGameBinds_CameraZoomOut);
-					if (isBoundZoomOut)
-					{
-						ImGui::TextWrappedPadded("Manually Adjust Zoom has relevant keybinds set.", 0.0F, 4.0F);
-					}
-					else
-					{
-						ImGui::TextWrappedPadded("Manually Adjust Zoom requires 'Zoom Out' keybind.", 0.0F, 4.0F);
-					}
-					ImGui::TooltipGeneric("Manually zoom your camera out to the\nmaximum distance.");
-					ImGui::SameLine();
-					ImGui::Text("(?)");
-					ImGui::TooltipGeneric(helpStr.c_str());
-				}
-				{
-					ImGui::TableNextRow();
-					ImGui::TableNextColumn();
-					bool isBoundZoomOut = APIDefs->GameBinds.IsBound(EGameBinds_CameraZoomOut);
-					if (isBoundZoomOut)
-					{
-						ImGui::TextWrappedPadded("Auto-Adjust Zoom has relevant keybinds set.", 0.0F, 4.0F);
-					}
-					else
-					{
-						ImGui::TextWrappedPadded("Auto-Adjust Zoom requires 'Zoom Out' keybind.", 0.0F, 4.0F);
-					}
-					ImGui::TooltipGeneric("Automatically zoom out your camera out\nwhen the field-of-view changes or you\nchange map.");
-					ImGui::SameLine();
-					ImGui::Text("(?)");
-					ImGui::TooltipGeneric(helpStr.c_str());
-				}
-				{
-					ImGui::TableNextRow();
-					ImGui::TableNextColumn();
-					if (ImGui::Checkbox("Auto-Adjust Zoom (FoV Change)", &Settings::AutoAdjustZoomFOV))
-					{
-						Settings::Save();
-					}
-					ImGui::TooltipGeneric("Automatically zoom out your camera when\nthe field-of-view changes.");
-				}
-				{
-					ImGui::TableNextRow();
-					ImGui::TableNextColumn();
-					if (ImGui::Checkbox("Auto-Adjust Zoom (Map Change)", &Settings::AutoAdjustZoomMap))
-					{
-						Settings::Save();
-					}
-					ImGui::TooltipGeneric("Automatically zoom out your camera when\nyou change map.");
-				}
-				ImGui::EndTable();
-				break;
-			case ESettingsView_Utilities:
-				ImGui::BeginTable("##Utilities", 1, ImGuiTableFlags_BordersInnerH);
-				{
-					ImGui::TableNextRow();
-					ImGui::TableNextColumn();
-					ImGui::TextWrappedPadded("Hold to Double-Click", 0.0F, 4.0F);
-					ImGui::TooltipGeneric("Hold keybind to repeatedly double-click\nat your cursor's current position.");
-				}
-				{
-					ImGui::TableNextRow();
-					ImGui::TableNextColumn();
-					ImGui::TextWrappedPadded("Toggle Double-Click", 0.0F, 4.0F);
-					ImGui::TooltipGeneric("Toggle macro to repeatedly double-click\nat a configured position and interval.");
-				}
-				{
-					ImGui::TableNextRow();
-					ImGui::TableNextColumn();
-					ImGui::TextWrappedPadded("Double-Click Default Interval", 0.0F, 4.0F);
-					ImGui::TooltipGeneric("Sets the default interval for 'Hold to\nDouble-Click' and 'Toggle Double-Click.'");
-					ImGui::PushItemWidth(150.0F);
-					ImGui::InputFloat("seconds##DoubleClickDefaultInterval", &Settings::DoubleClickDefaultInterval, 0.05F, 0.25F, "%.2f");
-					ImGui::PopItemWidth();
-				}
-				ImGui::EndTable();
-				break;
-			default:
-				break;
+					break;
+				default:
+					break;
+			}
 		}
 		ImGui::EndChild();
 		ImGui::EndGroup();
