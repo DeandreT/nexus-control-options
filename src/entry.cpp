@@ -235,7 +235,7 @@ void AddonOptions()
 					}
 					else if (isBoundDodge)
 					{
-						ImGui::TextWrappedPadded("Dodge-Jump requires 'Jump' keybind", 0.0F, 4.0F);
+						ImGui::TextWrappedPadded("Dodge-Jump requires 'Jump' keybind.", 0.0F, 4.0F);
 					}
 					else if (isBoundJump)
 					{

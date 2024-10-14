@@ -17,11 +17,11 @@ namespace Tasks {
 	/* Callbacks */
 	void DodgeJump(const char* aIdentifier, bool aIsRelease);
 	void MoveAboutFace(const char* aIdentifier, bool aIsRelease);
+	void ManualAdjustZoom(const char* aIdentifier, bool aIsRelease);
+	void AutoAdjustZoom();
 	void HoldDoubleClick(const char* aIdentifier, bool aIsRelease);
 	void ToggleDoubleClick(const char* aIdentifier, bool aIsRelease);
 	void PerformDoubleClick();
-	void ManualAdjustZoom(const char* aIdentifier, bool aIsRelease);
-	void AutoAdjustZoom();
 } // namespace Tasks
 
 #endif /* TASKS_H */

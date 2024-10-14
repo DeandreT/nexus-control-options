@@ -87,6 +87,65 @@ namespace Tasks
 		}
 	}
 
+	void ManualAdjustZoom(const char* aIdentifier, bool aIsRelease)
+	{
+		if (((strcmp(aIdentifier, "KB_CO_MANUAL_ADJUST_ZOOM") == 0) && !aIsRelease))
+		{
+			if (isValidGameState())
+			{
+				isManualAdjustZoom = true;
+			}
+		}
+	}
+
+	void AutoAdjustZoom()
+	{
+		const auto delay = std::chrono::milliseconds(50);
+		static auto nextTick = std::chrono::system_clock::now().time_since_epoch();
+		static int zoomTicks = 0;
+
+		static float previousFOV = 0;
+		static int previousMapID = 0;
+
+		if (Settings::AutoAdjustZoomFOV)
+		{
+			if (previousFOV < MumbleIdentity->FOV)
+			{
+				zoomTicks += 3;
+			}
+
+			previousFOV = MumbleIdentity->FOV;
+		}
+
+		if (Settings::AutoAdjustZoomMap)
+		{
+			if (previousMapID != MumbleIdentity->MapID)
+			{
+				zoomTicks += 12;
+			}
+
+			previousMapID = MumbleIdentity->MapID;
+		}
+
+		if (isManualAdjustZoom)
+		{
+			zoomTicks += 12;
+
+			isManualAdjustZoom = false;
+		}
+
+		if (zoomTicks && isTimeoutElapsed(nextTick))
+		{
+			if (isValidGameState())
+			{
+				APIDefs->GameBinds.InvokeAsync(EGameBinds_CameraZoomOut, 50);
+				zoomTicks--;
+
+				nextTick = std::chrono::system_clock::now().time_since_epoch() + delay;
+			}
+		}
+	}
+
 	void HoldDoubleClick(const char* aIdentifier, bool aIsRelease)
 	{
 		if (strcmp(aIdentifier, "KB_CO_HOLD_DOUBLE_CLICK") == 0)
@@ -277,65 +336,6 @@ namespace Tasks
 			std::string modalName = "Toggle Double-Click";
 			ImGui::OpenPopup(modalName.c_str(), ImGuiPopupFlags_AnyPopupLevel);
 			Settings::ToggleDoubleClickModal(modalName);
-		}
-	}
-
-	void ManualAdjustZoom(const char* aIdentifier, bool aIsRelease)
-	{
-		if (((strcmp(aIdentifier, "KB_CO_MANUAL_ADJUST_ZOOM") == 0) && !aIsRelease))
-		{
-			if (isValidGameState())
-			{
-				isManualAdjustZoom = true;
-			}
-		}
-	}
-
-	void AutoAdjustZoom()
-	{
-		const auto delay = std::chrono::milliseconds(50);
-		static auto nextTick = std::chrono::system_clock::now().time_since_epoch();
-		static int zoomTicks = 0;
-		
-		static float previousFOV = 0;
-		static int previousMapID = 0;
-
-		if (Settings::AutoAdjustZoomFOV)
-		{
-			if (previousFOV < MumbleIdentity->FOV)
-			{
-				zoomTicks += 3;
-			}
-
-			previousFOV = MumbleIdentity->FOV;
-		}
-
-		if (Settings::AutoAdjustZoomMap)
-		{
-			if (previousMapID != MumbleIdentity->MapID)
-			{
-				zoomTicks += 12;
-			}
-
-			previousMapID = MumbleIdentity->MapID;
-		}
-
-		if (isManualAdjustZoom)
-		{
-			zoomTicks += 12;
-
-			isManualAdjustZoom = false;
-		}
-
-		if (zoomTicks && isTimeoutElapsed(nextTick))
-		{
-			if (isValidGameState())
-			{
-				APIDefs->GameBinds.InvokeAsync(EGameBinds_CameraZoomOut, 50);
-				zoomTicks--;
-
-				nextTick = std::chrono::system_clock::now().time_since_epoch() + delay;
-			}
 		}
 	}
 
