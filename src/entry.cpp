@@ -8,13 +8,13 @@
 
 #include "nexus/Nexus.h"
 #include "mumble/Mumble.h"
-#include "keybinds/Keybinds.h"
+#include "keybinds/keybinds.h"
 #include "imgui/imgui.h"
 
-#include "Shared.h"
-#include "Settings.h"
-#include "Tasks.h"
-#include "Version.h"
+#include "shared.h"
+#include "settings.h"
+#include "tasks.h"
+#include "version.h"
 
 void OnMumbleIdentityUpdated(void* aEventArgs);
 void AddonLoad(AddonAPI* aApi);

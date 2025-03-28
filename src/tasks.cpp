@@ -3,10 +3,10 @@
 #include <sstream>
 #include <string>
 
-#include "keybinds/Keybinds.h"
+#include "keybinds/keybinds.h"
 
-#include "Tasks.h"
-#include "Settings.h"
+#include "tasks.h"
+#include "settings.h"
 #include "resource.h"
 
 namespace Tasks

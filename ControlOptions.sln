@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34408.163
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ExtendedControlOptions", "ExtendedControlOptions.vcxproj", "{B8372504-ED7E-4E9E-AB80-5701C7761A8B}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ControlOptions", "ControlOptions.vcxproj", "{B8372504-ED7E-4E9E-AB80-5701C7761A8B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

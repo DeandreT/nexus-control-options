@@ -1,4 +1,4 @@
-#include "Shared.h"
+#include "shared.h"
 
 AddonAPI* APIDefs = nullptr;
 

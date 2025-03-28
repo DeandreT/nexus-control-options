@@ -45,16 +45,16 @@
     <ClInclude Include="src\nlohmann\json.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Shared.h">
+    <ClInclude Include="src\shared.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Settings.h">
+    <ClInclude Include="src\settings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\keybinds\Keybinds.h">
+    <ClInclude Include="src\keybinds\keybinds.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Tasks.h">
+    <ClInclude Include="src\tasks.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\resource.h">
@@ -83,16 +83,16 @@
     <ClCompile Include="src\entry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Shared.cpp">
+    <ClCompile Include="src\shared.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Settings.cpp">
+    <ClCompile Include="src\settings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\keybinds\Keybinds.cpp">
+    <ClCompile Include="src\keybinds\keybinds.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Tasks.cpp">
+    <ClCompile Include="src\tasks.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -113,19 +113,19 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="src\resources\RES_TEX_DBLCLK_0.png">
+    <Image Include="resources\RES_TEX_DBLCLK_0.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="src\resources\RES_TEX_DBLCLK_1.png">
+    <Image Include="resources\RES_TEX_DBLCLK_1.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="src\resources\RES_TEX_DBLCLK_2.png">
+    <Image Include="resources\RES_TEX_DBLCLK_2.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="src\resources\RES_TEX_DBLCLK_3.png">
+    <Image Include="resources\RES_TEX_DBLCLK_3.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="src\resources\RES_TEX_DBLCLK_4.png">
+    <Image Include="resources\RES_TEX_DBLCLK_4.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

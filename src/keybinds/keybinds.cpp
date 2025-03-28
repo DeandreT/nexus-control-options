@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <map>
 
-#include "Keybinds.h"
+#include "keybinds.h"
 
 bool operator==(const Keybind& lhs, const Keybind& rhs)
 {

@@ -1,7 +1,7 @@
 #ifndef TASKS_H
 #define TASKS_H
 
-#include "Shared.h"
+#include "shared.h"
 
 namespace Tasks {
 	/* State */

@@ -1,9 +1,9 @@
 #include <filesystem>
 #include <fstream>
 
-#include "keybinds/Keybinds.h"
+#include "keybinds/keybinds.h"
 
-#include "Settings.h"
+#include "settings.h"
 
 namespace Settings
 {

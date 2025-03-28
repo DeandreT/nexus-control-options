@@ -6,7 +6,7 @@
 #include "imgui/imgui.h"
 #include "nlohmann/json.hpp"
 
-#include "Shared.h"
+#include "shared.h"
 
 using json = nlohmann::json;
 

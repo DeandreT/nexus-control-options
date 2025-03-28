@@ -10,9 +10,9 @@ FOR /F "skip=1 tokens=1-6" %%G IN ('WMIC Path Win32_LocalTime Get Day^,Hour^,Min
 )
 :s_done
 
-echo #pragma once > src/Version.h
-echo #define V_MAJOR %_yyyy% >> src/Version.h
-echo #define V_MINOR %_mm% >> src/Version.h
-echo #define V_BUILD %_dd% >> src/Version.h
+echo #pragma once > src/version.h
+echo #define V_MAJOR %_yyyy% >> src/version.h
+echo #define V_MINOR %_mm% >> src/version.h
+echo #define V_BUILD %_dd% >> src/version.h
 SET /A var_res = %_hour% * 60 + %_minute%
-echo #define V_REVISION %var_res% >> src/Version.h
+echo #define V_REVISION %var_res% >> src/version.h
